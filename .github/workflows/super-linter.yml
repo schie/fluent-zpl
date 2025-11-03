@@ -42,7 +42,8 @@ jobs:
 
           # Enable core validations for TypeScript project
           VALIDATE_TYPESCRIPT_PRETTIER: true
-          VALIDATE_JSON: true
+          # Disable JSON validation - super-linter uses ESLint with --ext flag which is incompatible with flat config
+          VALIDATE_JSON: false
           VALIDATE_MARKDOWN: true
           VALIDATE_YAML: true
           VALIDATE_GITHUB_ACTIONS: true
