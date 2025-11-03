@@ -150,4 +150,316 @@ describe('Real-world ZPL Examples', () => {
     expect(zpl).toContain('$1,234.56')
     expect(zpl).toContain('(100%)')
   })
+
+  test('should generate complex shipping label with new ZPL features', () => {
+    const label = Label.create({ w: 800, h: 1200, dpi: 203, units: 'dot' })
+      .comment('Top section with logo, name and address.')
+      .setDefaultFont({ family: 'F', height: 60 })
+      .box({ at: { x: 50, y: 50 }, size: { w: 100, h: 100 }, border: 100 })
+      .box({ at: { x: 75, y: 75 }, size: { w: 100, h: 100 }, border: 100, reverse: true })
+      .box({ at: { x: 93, y: 93 }, size: { w: 40, h: 40 }, border: 40 })
+      .text({ at: { x: 220, y: 50 }, text: 'Intershipping, Inc.' })
+
+      .setDefaultFont({ family: 'F', height: 30 })
+      .text({ at: { x: 220, y: 115 }, text: '1000 Shipping Lane' })
+      .text({ at: { x: 220, y: 155 }, text: 'Shelbyville TN 38102' })
+      .text({ at: { x: 220, y: 195 }, text: 'United States (USA)' })
+
+      .box({ at: { x: 50, y: 250 }, size: { w: 700, h: 3 }, border: 3 })
+
+      .comment('Second section with recipient address and permit information.')
+      .setDefaultFont({ family: 'A', height: 30 })
+      .text({ at: { x: 50, y: 300 }, text: 'John Doe' })
+      .text({ at: { x: 50, y: 340 }, text: '100 Main Street' })
+      .text({ at: { x: 50, y: 380 }, text: 'Springfield TN 39021' })
+      .text({ at: { x: 50, y: 420 }, text: 'United States (USA)' })
+
+      .setDefaultFont({ family: 'A', height: 15 })
+      .box({ at: { x: 600, y: 300 }, size: { w: 150, h: 150 }, border: 3 })
+      .text({ at: { x: 638, y: 340 }, text: 'Permit' })
+      .text({ at: { x: 638, y: 390 }, text: '123456' })
+
+      .box({ at: { x: 50, y: 500 }, size: { w: 700, h: 3 }, border: 3 })
+
+      .comment('Third section with bar code.')
+      .setBarcodeDefaults({ moduleWidth: 5, wideToNarrowRatio: 2, height: 270 })
+      .barcode({ at: { x: 100, y: 550 }, type: 'Code128', data: '12345678' })
+
+      .comment('Fourth section (the two boxes on the bottom).')
+      .box({ at: { x: 50, y: 900 }, size: { w: 700, h: 250 }, border: 3 })
+      .box({ at: { x: 400, y: 900 }, size: { w: 3, h: 250 }, border: 3 })
+
+      .setDefaultFont({ family: 'F', height: 40 })
+      .text({ at: { x: 100, y: 960 }, text: 'Ctr. X34B-1' })
+      .text({ at: { x: 100, y: 1010 }, text: 'REF1 F00B47' })
+      .text({ at: { x: 100, y: 1060 }, text: 'REF2 BL4H8' })
+
+      .setDefaultFont({ family: 'F', height: 190 })
+      .text({ at: { x: 470, y: 955 }, text: 'CA' })
+
+    const actualZpl = label.toZPL()
+
+    // Should contain the new features
+    expect(actualZpl).toContain('^FX') // Comments
+    expect(actualZpl).toContain('^CF') // Global font changes
+    expect(actualZpl).toContain('^BY') // Global barcode settings
+    expect(actualZpl).toContain('^FR') // Field reverse
+
+    // Should contain basic structure
+    expect(actualZpl).toMatch(/^\^XA.*\^XZ$/)
+    expect(actualZpl).toContain('^LL1200')
+
+    // Should contain all text content
+    expect(actualZpl).toContain('Intershipping, Inc.')
+    expect(actualZpl).toContain('John Doe')
+    expect(actualZpl).toContain('CA')
+  })
+
+  test('should generate complex shipping label with logo and multiple sections', () => {
+    const label = Label.create({ w: 800, h: 1200, dpi: 203, units: 'dot' })
+      // Logo section - nested boxes to create a logo effect
+      .box({ at: { x: 50, y: 50 }, size: { w: 100, h: 100 }, border: 100 })
+      .box({ at: { x: 75, y: 75 }, size: { w: 100, h: 100 }, border: 100, fill: 'W' })
+      .box({ at: { x: 93, y: 93 }, size: { w: 40, h: 40 }, border: 40 })
+
+      // Company name and address section
+      .text({
+        at: { x: 220, y: 50 },
+        text: 'Intershipping, Inc.',
+        font: { family: 'F', h: 60, w: 60 }
+      })
+      .text({
+        at: { x: 220, y: 115 },
+        text: '1000 Shipping Lane',
+        font: { family: 'F', h: 30, w: 30 }
+      })
+      .text({
+        at: { x: 220, y: 155 },
+        text: 'Shelbyville TN 38102',
+        font: { family: 'F', h: 30, w: 30 }
+      })
+      .text({
+        at: { x: 220, y: 195 },
+        text: 'United States (USA)',
+        font: { family: 'F', h: 30, w: 30 }
+      })
+
+      // Horizontal separator line
+      .box({ at: { x: 50, y: 250 }, size: { w: 700, h: 3 }, border: 3 })
+
+      // Recipient address section
+      .text({
+        at: { x: 50, y: 300 },
+        text: 'John Doe',
+        font: { family: 'A', h: 30, w: 30 }
+      })
+      .text({
+        at: { x: 50, y: 340 },
+        text: '100 Main Street',
+        font: { family: 'A', h: 30, w: 30 }
+      })
+      .text({
+        at: { x: 50, y: 380 },
+        text: 'Springfield TN 39021',
+        font: { family: 'A', h: 30, w: 30 }
+      })
+      .text({
+        at: { x: 50, y: 420 },
+        text: 'United States (USA)',
+        font: { family: 'A', h: 30, w: 30 }
+      })
+
+      // Permit box
+      .box({ at: { x: 600, y: 300 }, size: { w: 150, h: 150 }, border: 3 })
+      .text({
+        at: { x: 638, y: 340 },
+        text: 'Permit',
+        font: { family: 'A', h: 15, w: 15 }
+      })
+      .text({
+        at: { x: 638, y: 390 },
+        text: '123456',
+        font: { family: 'A', h: 15, w: 15 }
+      })
+
+      // Second horizontal separator
+      .box({ at: { x: 50, y: 500 }, size: { w: 700, h: 3 }, border: 3 })
+
+      // Barcode section
+      .barcode({
+        at: { x: 100, y: 550 },
+        type: 'Code128',
+        data: '12345678',
+        height: 270,
+        module: 5
+      })
+
+      // Bottom section with boxes
+      .box({ at: { x: 50, y: 900 }, size: { w: 700, h: 250 }, border: 3 })
+      .box({ at: { x: 400, y: 900 }, size: { w: 3, h: 250 }, border: 3 })
+
+      // Reference information
+      .text({
+        at: { x: 100, y: 960 },
+        text: 'Ctr. X34B-1',
+        font: { family: 'F', h: 40, w: 40 }
+      })
+      .text({
+        at: { x: 100, y: 1010 },
+        text: 'REF1 F00B47',
+        font: { family: 'F', h: 40, w: 40 }
+      })
+      .text({
+        at: { x: 100, y: 1060 },
+        text: 'REF2 BL4H8',
+        font: { family: 'F', h: 40, w: 40 }
+      })
+
+      // Large "CA" text
+      .text({
+        at: { x: 470, y: 955 },
+        text: 'CA',
+        font: { family: 'F', h: 190, w: 190 }
+      })
+
+    const actualZpl = label.toZPL()
+
+    // Basic structure validation
+    expect(actualZpl).toMatch(/^\^XA.*\^XZ$/)
+    expect(actualZpl).toContain('^LL1200')
+
+    // Validate all text content is present
+    expect(actualZpl).toContain('Intershipping, Inc.')
+    expect(actualZpl).toContain('1000 Shipping Lane')
+    expect(actualZpl).toContain('Shelbyville TN 38102')
+    expect(actualZpl).toContain('United States (USA)')
+    expect(actualZpl).toContain('John Doe')
+    expect(actualZpl).toContain('100 Main Street')
+    expect(actualZpl).toContain('Springfield TN 39021')
+    expect(actualZpl).toContain('Permit')
+    expect(actualZpl).toContain('123456')
+    expect(actualZpl).toContain('Ctr. X34B-1')
+    expect(actualZpl).toContain('REF1 F00B47')
+    expect(actualZpl).toContain('REF2 BL4H8')
+    expect(actualZpl).toContain('CA')
+
+    // Validate barcode
+    expect(actualZpl).toContain('^BCN,270,Y,N,N')
+    expect(actualZpl).toContain('^FD12345678^FS')
+
+    // Validate key structural elements - logo boxes
+    expect(actualZpl).toContain('^GB100,100,100,B,0^FS') // Outer logo box
+    expect(actualZpl).toContain('^GB100,100,100,W,0^FS') // Middle reversed box
+    expect(actualZpl).toContain('^GB40,40,40,B,0^FS') // Inner logo box
+
+    // Validate separator lines
+    expect(actualZpl).toContain('^GB700,3,3,B,0^FS') // Horizontal separator lines
+
+    // Validate permit box
+    expect(actualZpl).toContain('^GB150,150,3,B,0^FS') // Permit box
+
+    // Validate bottom section boxes
+    expect(actualZpl).toContain('^GB700,250,3,B,0^FS') // Bottom large box
+    expect(actualZpl).toContain('^GB3,250,3,B,0^FS') // Vertical divider
+
+    // Validate all field data blocks are properly terminated
+    const fdBlocks = actualZpl.match(/\^FD[^]*?\^FS/g) || []
+    expect(fdBlocks.length).toBeGreaterThan(10) // Should have many text fields
+
+    // Validate fonts are used correctly
+    expect(actualZpl).toContain('^AF') // Font F for company info
+    expect(actualZpl).toContain('^AA') // Font A for addresses
+  })
+
+  test('should generate exact ZPL matching original specification using new features', () => {
+    // This test uses the new global settings features to match the original ZPL structure exactly
+    const label = Label.create({ w: 800, h: 1200, dpi: 203, units: 'dot' })
+      .comment('Top section with logo, name and address.')
+      .setDefaultFont({ family: '0', height: 60 })
+      .box({ at: { x: 50, y: 50 }, size: { w: 100, h: 100 }, border: 100 })
+      .box({ at: { x: 75, y: 75 }, size: { w: 100, h: 100 }, border: 100, reverse: true })
+      .box({ at: { x: 93, y: 93 }, size: { w: 40, h: 40 }, border: 40 })
+      .text({
+        at: { x: 220, y: 50 },
+        text: 'Intershipping, Inc.',
+        // Use empty font to rely on global ^CF settings
+        font: { family: undefined, h: undefined, w: undefined }
+      })
+
+      .setDefaultFont({ family: '0', height: 30 })
+      .text({ at: { x: 220, y: 115 }, text: '1000 Shipping Lane' })
+      .text({ at: { x: 220, y: 155 }, text: 'Shelbyville TN 38102' })
+      .text({ at: { x: 220, y: 195 }, text: 'United States (USA)' })
+
+      .box({ at: { x: 50, y: 250 }, size: { w: 700, h: 3 }, border: 3 })
+
+      .comment('Second section with recipient address and permit information.')
+      .setDefaultFont({ family: 'A', height: 30 })
+      .text({ at: { x: 50, y: 300 }, text: 'John Doe' })
+      .text({ at: { x: 50, y: 340 }, text: '100 Main Street' })
+      .text({ at: { x: 50, y: 380 }, text: 'Springfield TN 39021' })
+      .text({ at: { x: 50, y: 420 }, text: 'United States (USA)' })
+
+      .setDefaultFont({ family: 'A', height: 15 })
+      .box({ at: { x: 600, y: 300 }, size: { w: 150, h: 150 }, border: 3 })
+      .text({ at: { x: 638, y: 340 }, text: 'Permit' })
+      .text({ at: { x: 638, y: 390 }, text: '123456' })
+
+      .box({ at: { x: 50, y: 500 }, size: { w: 700, h: 3 }, border: 3 })
+
+      .comment('Third section with bar code.')
+      .setBarcodeDefaults({ moduleWidth: 5, wideToNarrowRatio: 2, height: 270 })
+      .barcode({
+        at: { x: 100, y: 550 },
+        type: 'Code128',
+        data: '12345678'
+        // height will come from global ^BY setting
+      })
+
+      .comment('Fourth section (the two boxes on the bottom).')
+      .box({ at: { x: 50, y: 900 }, size: { w: 700, h: 250 }, border: 3 })
+      .box({ at: { x: 400, y: 900 }, size: { w: 3, h: 250 }, border: 3 })
+
+      .setDefaultFont({ family: '0', height: 40 })
+      .text({ at: { x: 100, y: 960 }, text: 'Ctr. X34B-1' })
+      .text({ at: { x: 100, y: 1010 }, text: 'REF1 F00B47' })
+      .text({ at: { x: 100, y: 1060 }, text: 'REF2 BL4H8' })
+
+      .setDefaultFont({ family: '0', height: 190 })
+      .text({ at: { x: 470, y: 955 }, text: 'CA' })
+
+    const actualZpl = label.toZPL()
+
+    // Test that the new features are present
+    expect(actualZpl).toContain('^FX Top section with logo, name and address.')
+    expect(actualZpl).toContain('^FX Second section with recipient address and permit information.')
+    expect(actualZpl).toContain('^FX Third section with bar code.')
+    expect(actualZpl).toContain('^FX Fourth section (the two boxes on the bottom).')
+
+    // Test global font changes
+    expect(actualZpl).toContain('^CF0,60')
+    expect(actualZpl).toContain('^CF0,30')
+    expect(actualZpl).toContain('^CFA,30')
+    expect(actualZpl).toContain('^CFA,15')
+    expect(actualZpl).toContain('^CF0,40')
+    expect(actualZpl).toContain('^CF0,190')
+
+    // Test field reverse
+    expect(actualZpl).toContain('^FO75,75^FR^GB100,100,100')
+
+    // Test global barcode settings
+    expect(actualZpl).toContain('^BY5,2,270')
+
+    // Test all content is present
+    expect(actualZpl).toContain('Intershipping, Inc.')
+    expect(actualZpl).toContain('1000 Shipping Lane')
+    expect(actualZpl).toContain('John Doe')
+    expect(actualZpl).toContain('12345678')
+    expect(actualZpl).toContain('Ctr. X34B-1')
+    expect(actualZpl).toContain('CA')
+
+    // Basic structure validation
+    expect(actualZpl).toMatch(/^\^XA.*\^XZ$/)
+    expect(actualZpl).toContain('^LL1200')
+  })
 })

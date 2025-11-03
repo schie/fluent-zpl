@@ -848,3 +848,112 @@ describe('Integration Scenarios', () => {
     expect(inchZPL).toMatch(/\^LL\d+/) // Should be converted from inches
   })
 })
+
+describe('Global Settings Functionality', () => {
+  test('setDefaultFont() should generate CF command with all parameters', () => {
+    const label = Label.create({ w: 400, h: 600 }).setDefaultFont({
+      family: 'B',
+      height: 32,
+      width: 24
+    })
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^CFB,32,24')
+  })
+
+  test('setDefaultFont() should use height as width when width not specified', () => {
+    const label = Label.create({ w: 400, h: 600 }).setDefaultFont({ family: 'F', height: 60 })
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^CFF,60,60')
+  })
+
+  test('setDefaultFont() should handle undefined width parameter', () => {
+    const label = Label.create({ w: 400, h: 600 }).setDefaultFont({
+      family: 'A',
+      height: 28,
+      width: undefined
+    })
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^CFA,28,28') // width defaults to height when undefined
+  })
+
+  test('setDefaultFont() should use defaults when parameters omitted', () => {
+    const label = Label.create({ w: 400, h: 600 }).setDefaultFont({})
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^CF0,28,28') // family='0', height=28, width=height
+  })
+
+  test('setBarcodeDefaults() should generate BY command with all parameters', () => {
+    const label = Label.create({ w: 400, h: 600 }).setBarcodeDefaults({
+      moduleWidth: 5,
+      wideToNarrowRatio: 2,
+      height: 270
+    })
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^BY5,2,270')
+  })
+
+  test('setBarcodeDefaults() should omit height when not specified', () => {
+    const label = Label.create({ w: 400, h: 600 }).setBarcodeDefaults({
+      moduleWidth: 3,
+      wideToNarrowRatio: 4
+    })
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^BY3,4') // No height parameter
+    expect(zpl).not.toContain('^BY3,4,')
+  })
+
+  test('setBarcodeDefaults() should handle undefined height parameter', () => {
+    const label = Label.create({ w: 400, h: 600 }).setBarcodeDefaults({
+      moduleWidth: 2,
+      wideToNarrowRatio: 3,
+      height: undefined
+    })
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^BY2,3') // height omitted when undefined
+    expect(zpl).not.toContain('^BY2,3,')
+  })
+
+  test('setBarcodeDefaults() should use defaults when parameters omitted', () => {
+    const label = Label.create({ w: 400, h: 600 }).setBarcodeDefaults({})
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^BY2,3') // moduleWidth=2, ratio=3, no height
+  })
+
+  test('setBarcodeDefaults() should handle zero height (treated as falsy)', () => {
+    const label = Label.create({ w: 400, h: 600 }).setBarcodeDefaults({
+      moduleWidth: 4,
+      wideToNarrowRatio: 2,
+      height: 0
+    })
+
+    const zpl = label.toZPL()
+    expect(zpl).toContain('^BY4,2') // height=0 is falsy, so omitted
+    expect(zpl).not.toContain('^BY4,2,0')
+  })
+
+  test('global settings should chain properly with other methods', () => {
+    const label = Label.create({ w: 400, h: 600 })
+      .setDefaultFont({ family: 'B', height: 32 })
+      .text({ at: { x: 50, y: 50 }, text: 'Hello' })
+      .setBarcodeDefaults({ moduleWidth: 5, height: 100 })
+      .barcode({ at: { x: 50, y: 100 }, type: 'Code128', data: '12345' })
+
+    const zpl = label.toZPL()
+
+    // Should contain both global settings
+    expect(zpl).toContain('^CFB,32,32')
+    expect(zpl).toContain('^BY5,3,100')
+
+    // Should contain the field elements
+    expect(zpl).toContain('^FDHello^FS')
+    expect(zpl).toContain('^FD12345^FS')
+  })
+})
