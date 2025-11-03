@@ -1,6 +1,6 @@
 {
   "name": "@schie/fluent-zpl",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A fluent interface for building ZPL (Zebra Programming Language) commands in TypeScript.",
   "repository": {
     "type": "git",
