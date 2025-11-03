@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/schie/fluent-zpl/compare/v0.3.0...v0.4.0) (2025-11-03)
+
+
+### Features
+
+* **label:** adding `.setDefaultFont(...)` and `.setBarcodeDefaults(...)` ([abc0923](https://github.com/schie/fluent-zpl/commit/abc092373d7d810d2ed1caba8d9046cbb79f74d6))
+* **label:** adding support for a Reverse Box ([288e68e](https://github.com/schie/fluent-zpl/commit/288e68e60522f8752e5cb1401a5ef82bf6978bee))
+
 ## [0.3.0](https://github.com/schie/fluent-zpl/compare/v0.2.0...v0.3.0) (2025-11-03)
 
 
