@@ -392,6 +392,32 @@ export class Label {
     }
     return out
   }
+
+  /** Add a ZPL comment (^FX) - useful for debugging and documentation */
+  comment(text: string): Label {
+    const newTokens = [...this.tokens]
+    const insertIndex = findLastXZ(newTokens)
+
+    newTokens.splice(insertIndex, 0, {
+      k: 'Cmd',
+      mark: '^',
+      name: 'FX',
+      params: ` ${text}`
+    })
+
+    return new Label(newTokens, this.cfg)
+  }
+
+  /** Add metadata as ZPL comments (^FX) for debugging and traceability */
+  withMetadata(meta: Record<string, string | number>): Label {
+    let result: Label = this
+
+    Object.entries(meta).forEach(([key, value]) => {
+      result = result.comment(`${key}: ${value}`)
+    })
+
+    return result
+  }
 }
 
 /* local helpers */
