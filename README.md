@@ -4,11 +4,14 @@
 [![CI](https://github.com/schie/fluent-zpl/actions/workflows/ci.yml/badge.svg)](https://github.com/schie/fluent-zpl/actions/workflows/ci.yml)
 [![Super-Linter](https://github.com/schie/fluent-zpl/actions/workflows/super-linter.yml/badge.svg)](https://github.com/schie/fluent-zpl/actions/workflows/super-linter.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/badge/coverage-97.58%25-brightgreen)](https://github.com/schie/fluent-zpl)
+[![codecov](https://codecov.io/gh/schie/fluent-zpl/branch/main/graph/badge.svg)](https://codecov.io/gh/schie/fluent-zpl)
 [![code style: prettier][prettier-badge]][prettier]
 [![Commitizen friendly][commitizen-badge]][commitizen]
 
 A modern, type-safe TypeScript library for generating **ZPL (Zebra Programming Language)** commands using a fluent, immutable API. Perfect for creating shipping labels, product tags, inventory stickers, and any other Zebra printer output.
+
+> **⚠️ Early Development Notice**  
+> This library is under active early development. Until v1.0.0 is released, consider all releases potentially breaking. The API may change significantly between versions as we refine the design based on user feedback and real-world usage patterns.
 
 ## ✨ Features
 
@@ -17,7 +20,7 @@ A modern, type-safe TypeScript library for generating **ZPL (Zebra Programming L
 - 🔄 **Immutable** - All operations return new instances (safe chaining)
 - 📏 **Unit Aware** - Support for dots, millimeters, and inches with DPI conversion
 - ✅ **ZPL Compliant** - Generates valid ZPL according to specification
-- 🧪 **Thoroughly Tested** - 166 tests with 97.58% coverage
+- 🧪 **Thoroughly Tested** - Comprehensive test suite with high coverage
 - 📱 **Tree Shakeable** - Import only what you need
 - 🖼️ **Image Support** - Convert RGBA images to ZPL bitmaps
 - 📡 **RFID/EPC Support** - Encode and read RFID tags with EPC data
@@ -232,6 +235,26 @@ label.rfidRead({
 })
 ```
 
+### Comments and Metadata
+
+```typescript
+// Add comments for debugging (generates ^FX commands)
+label
+  .comment('This is a shipping label for Order #12345')
+  .text({ at: { x: 50, y: 100 }, text: 'Hello World' })
+  .comment('End of content')
+
+// Add structured metadata
+label.withMetadata({
+  generator: '@schie/fluent-zpl',
+  version: '1.0.0',
+  orderNumber: 'ORD-12345',
+  customer: 'ACME Corp'
+})
+
+// Metadata is embedded as ZPL comments (^FX) for debugging
+```
+
 ### Unit Conversion
 
 ```typescript
@@ -383,6 +406,8 @@ const zpl = label.toZPL()
   - `.rfid(opts)` - Add RFID field with EPC encoding
   - `.rfidRead(opts)` - Add RFID read command
   - `.epc(opts)` - Add EPC encoding (convenience method)
+  - `.comment(text)` - Add ZPL comment (^FX)
+  - `.withMetadata(meta)` - Add structured metadata as comments
   - `.toZPL()` - Generate ZPL string
 
 ### Utilities
@@ -391,8 +416,6 @@ const zpl = label.toZPL()
 - **`dot(n)`** - Pass-through for dots
 - **`mm(n, dpi)`** - Convert mm to dots
 - **`inch(n, dpi)`** - Convert inches to dots
-- **`tokenizeZPL(zpl)`** - Parse ZPL to tokens
-- **`emit(tokens)`** - Convert tokens to ZPL
 
 ## 📦 Package Information
 
