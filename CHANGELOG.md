@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/schie/fluent-zpl/compare/v0.2.0...v0.3.0) (2025-11-03)
+
+
+### Features
+
+* exporting union types for enhanced typescript support ([8f15031](https://github.com/schie/fluent-zpl/commit/8f150317e13a2cd36417255953e594e2c5598fd3))
+
 ## [0.2.0](https://github.com/schie/fluent-zpl/compare/v0.1.0...v0.2.0) (2025-11-03)
 
 
