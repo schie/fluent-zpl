@@ -237,5 +237,13 @@ describe('ZPL Emitter', () => {
 
       expect(emittedZPL).toBe(originalZPL)
     })
+
+    test('should handle unknown token types (default case)', () => {
+      // Test the default case in emit function
+      // @ts-expect-error Testing invalid token for coverage
+      const invalidToken = { k: 'InvalidType', data: 'test' }
+      const result = emit([invalidToken as any])
+      expect(result).toBe('')
+    })
   })
 })

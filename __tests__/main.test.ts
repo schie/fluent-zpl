@@ -1,7 +1,9 @@
 // @schie/fluent-zpl - Comprehensive Test Suite
 
-import type { Token } from '../src/index.js'
-import { Label, dot, emit, inch, mm, toDots, tokenizeZPL } from '../src/index.js'
+import type { Token } from '../src/_types.js'
+import { emit } from '../src/core/emit.js'
+import { tokenizeZPL } from '../src/core/parse.js'
+import { Label, dot, inch, mm, toDots } from '../src/index.js'
 
 describe('Label Factory Methods', () => {
   test('Label.create() should create basic label with defaults', () => {
@@ -125,6 +127,36 @@ describe('Text Functionality', () => {
     const zpl = result.toZPL()
 
     expect(zpl).toContain('^FB200,5,2,C,0')
+  })
+
+  test('text() should handle wrap with undefined optional properties', () => {
+    const result = label.text({
+      at: { x: 50, y: 100 },
+      text: 'Text with minimal wrap',
+      wrap: {
+        width: 150
+        // lines, spacing, justify are undefined - should use defaults
+      }
+    })
+    const zpl = result.toZPL()
+
+    expect(zpl).toContain('^FB150,10,0,L,0') // defaults: lines=10, spacing=0, justify=L
+  })
+
+  test('text() should handle wrap with null spacing and justify', () => {
+    const result = label.text({
+      at: { x: 50, y: 100 },
+      text: 'Text with null properties',
+      wrap: {
+        width: 100,
+        lines: 3,
+        spacing: null as any, // Should use 0 as default
+        justify: null as any // Should use 'L' as default
+      }
+    })
+    const zpl = result.toZPL()
+
+    expect(zpl).toContain('^FB100,3,0,L,0')
   })
 
   test('text() should escape carets in text', () => {
@@ -312,14 +344,38 @@ describe('Convenience Methods', () => {
 
   test('qr() should create QR code with convenience method', () => {
     const result = label.qr({
-      at: { x: 50, y: 100 },
-      text: 'https://example.com',
-      module: 5
+      at: { x: 100, y: 200 },
+      text: 'https://example.com'
     })
     const zpl = result.toZPL()
 
-    expect(zpl).toContain('^BQN,2,5')
+    expect(zpl).toContain('^FO100,200')
+    expect(zpl).toContain('^BQN,2,3')
     expect(zpl).toContain('^FDhttps://example.com^FS')
+  })
+
+  test('gs1_128() should use default values for optional parameters', () => {
+    const result = label.gs1_128({
+      at: { x: 50, y: 100 },
+      ai: { '01': '12345678901234', '21': 'ABC123' }
+      // height and rotate are undefined - should use defaults
+    })
+    const zpl = result.toZPL()
+
+    expect(zpl).toContain('^FO50,100')
+    expect(zpl).toContain('^BCN,100,Y,N,N') // Default height=100, rotate=N
+  })
+
+  test('gs1_128() should handle explicit null values for optional parameters', () => {
+    const result = label.gs1_128({
+      at: { x: 25, y: 50 },
+      ai: { '01': '12345678901234' },
+      height: null as any, // Should use default 100
+      rotate: null as any // Should use default 'N'
+    })
+    const zpl = result.toZPL()
+
+    expect(zpl).toContain('^BCN,100,Y,N,N')
   })
 
   test('gs1_128() should create GS1-128 barcode', () => {
@@ -350,6 +406,34 @@ describe('Convenience Methods', () => {
     expect(zpl).toContain('^FDJohn Doe^FS')
     expect(zpl).toContain('^FD123 Main St^FS')
     expect(zpl).toContain('^FDAnytown, ST 12345^FS')
+  })
+
+  test('addressBlock() should use default values when optional params are undefined', () => {
+    const result = label.addressBlock({
+      at: { x: 10, y: 20 },
+      lines: ['Line 1', 'Line 2']
+      // lineHeight, size, family, rotate are undefined - should use defaults
+    })
+    const zpl = result.toZPL()
+
+    expect(zpl).toContain('^AAN24,24') // Default font: family=A, size=24
+    expect(zpl).toContain('^FO10,20') // First line
+    expect(zpl).toContain('^FO10,44') // Second line (20 + default lineHeight=24)
+  })
+
+  test('addressBlock() should handle empty and null lines', () => {
+    const result = label.addressBlock({
+      at: { x: 0, y: 0 },
+      lines: ['Valid line', '', null, undefined, 'Another valid line'],
+      lineHeight: 25
+    })
+    const zpl = result.toZPL()
+
+    // Should only render non-empty lines
+    expect(zpl).toContain('^FDValid line^FS')
+    expect(zpl).toContain('^FDAnother valid line^FS')
+    expect(zpl).toContain('^FO0,0') // First line
+    expect(zpl).toContain('^FO0,100') // Second valid line (skipped empty ones: 0 + 25*4)
   })
 })
 

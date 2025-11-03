@@ -133,5 +133,11 @@ describe('Unit Helper Functions', () => {
       expect(toDots(1000, 203, 'mm')).toBeGreaterThan(1000)
       expect(toDots(100, 203, 'in')).toBe(20300)
     })
+
+    test('should handle unknown units (default case)', () => {
+      // Test the default case in the switch statement
+      // @ts-expect-error Testing invalid units for coverage
+      expect(toDots(50, 203, 'invalid' as any)).toBe(50)
+    })
   })
 })

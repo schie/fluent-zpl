@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ZPL Output Snapshots Barcodes Code128 barcode 1`] = `"^XA^LL600^FO50,200^BCN,100,Y,N,N^FD123456789^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Barcodes QR code with options 1`] = `"^XA^LL600^FO100,100^BQN,2,4^FDhttps://example.com/product/12345^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Basic Labels empty label with custom settings 1`] = `"^XA^POR^LH3000,6000^LL1800^XZ"`;
+
+exports[`ZPL Output Snapshots Basic Labels empty label with defaults 1`] = `"^XA^LL600^XZ"`;
+
+exports[`ZPL Output Snapshots Comments and Metadata label with comments 1`] = `"^XA^LL600^FX This is a test label^FO50,100^AAN28,28^FDTest Label^FS^FX End of content^XZ"`;
+
+exports[`ZPL Output Snapshots Comments and Metadata label with metadata 1`] = `"^XA^LL600^FO50,100^AAN28,28^FDTest Label^FS^FX generator: @schie/fluent-zpl^FX version: 1.0.0^FX created: 2025-01-01T00:00:00.000Z^XZ"`;
+
+exports[`ZPL Output Snapshots Graphics and Boxes filled box 1`] = `"^XA^LL600^FO50,50^GB300,100,3,B,0^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Graphics and Boxes simple box 1`] = `"^XA^LL600^FO10,10^GB380,580,2,B,0^FS^XZ"`;
+
+exports[`ZPL Output Snapshots RFID Labels EPC encoding convenience 1`] = `"^XA^LL600^RF50,200,0,1,00000000^FD^RFW,E,0,8,FEDCBA0987654321^FS^XZ"`;
+
+exports[`ZPL Output Snapshots RFID Labels basic RFID write 1`] = `"^XA^LL600^FO50,50^AAN28,28^FDRFID Enabled^FS^RF50,100,0,1,00000000^FD^RFW,E,0,12,3034257BF7194E4000000001^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Special Characters and Escaping text with caret characters 1`] = `"^XA^LL600^FO50,100^AAN28,28^FDPrice: $29.99 ^^includes tax^^^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Special Characters and Escaping text with special symbols 1`] = `"^XA^LL600^FO50,100^AAN28,28^FDSymbols: © ® ™ €^FS^FO50,150^AAN28,28^FDMath: 2+2=4, 10×5=50^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Text and Fonts simple text with default font 1`] = `"^XA^LL600^FO50,100^AAN28,28^FDHello World^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Text and Fonts text with custom font and rotation 1`] = `"^XA^LL600^FO50,100^ABR32,32^FDRotated Text^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Text and Fonts wrapped text field 1`] = `"^XA^LL600^FO50,100^AAN24,24^FB300,3,5,J,0^FDThis is a long text that should wrap across multiple lines automatically^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Units and DPI inch units at 600 DPI 1`] = `"^XA^LL1500^FO300,300^AAN28,28^FDHigh DPI Label^FS^FO1500,300^BQN,2,3^FDHIGH-RES^FS^XZ"`;
+
+exports[`ZPL Output Snapshots Units and DPI millimeter units at 300 DPI 1`] = `"^XA^LL709^FO118,177^AAN28,28^FDMetric Label^FS^FO59,59^GB1063,591,1,B,0^FS^XZ"`;

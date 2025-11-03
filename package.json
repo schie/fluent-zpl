@@ -43,7 +43,8 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint && npm test && npm run build",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch"
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
   },
   "author": {
     "name": "Dustin Schie",

@@ -1,8 +1,12 @@
 // Image functionality tests - comprehensive coverage for image encoding
 
 import {
+  buildDGAndRecall,
+  buildGFAt,
+  clamp255,
   encodeDG,
   encodeGF,
+  monoFromImageData,
   monoFromRGBA,
   type DitherMode,
   type MonoBitmap
@@ -319,6 +323,103 @@ describe('Image Encoder', () => {
       expect(dgResult.hex).toBe(gfResult.hex)
       expect(dgResult.totalBytes).toBe(gfResult.totalBytes)
       expect(dgResult.bytesPerRow).toBe(gfResult.bytesPerRow)
+    })
+  })
+
+  describe('Helper Functions', () => {
+    test('monoFromImageData should work as alias', () => {
+      const rgba = new Uint8Array([0, 0, 0, 255, 255, 255, 255, 255])
+      const mono = monoFromImageData(rgba, 2, 1)
+
+      expect(mono.width).toBe(2)
+      expect(mono.height).toBe(1)
+      expect(mono.bytes.length).toBe(1)
+    })
+
+    test('should handle extreme RGBA values for clamp255 function', () => {
+      // Test values that would trigger clamp255 branches: < 0, > 255, and normal values
+      const rgba = new Uint8Array([
+        // Pixel 1: normal values (should pass through)
+        128, 128, 128, 255,
+        // Pixel 2: values that might get clamped during processing
+        0, 255, 127, 255
+      ])
+
+      const mono = monoFromRGBA({
+        rgba,
+        width: 2,
+        height: 1,
+        mode: 'fs' // Floyd-Steinberg dithering can create values outside 0-255 range
+      })
+
+      // Should handle the input without errors and produce valid output
+      expect(mono.width).toBe(2)
+      expect(mono.height).toBe(1)
+      expect(mono.bytes).toBeInstanceOf(Uint8Array)
+    })
+
+    test('buildGFAt should create complete ZPL block', () => {
+      const mono = {
+        width: 8,
+        height: 1,
+        bytesPerRow: 1,
+        bytes: new Uint8Array([0xaa])
+      }
+
+      const zpl = buildGFAt({ x: 100, y: 200 }, mono)
+      expect(zpl).toMatch(/^\^FO100,200\^GF/)
+      expect(zpl).toMatch(/\^FS$/)
+    })
+
+    test('buildDGAndRecall should create DG and recall commands', () => {
+      const mono = {
+        width: 8,
+        height: 1,
+        bytesPerRow: 1,
+        bytes: new Uint8Array([0xff])
+      }
+
+      const result = buildDGAndRecall('R:TEST.GRF', { x: 50, y: 75 }, mono)
+
+      expect(result.dg).toMatch(/^~DGR:TEST.GRF/)
+      expect(result.recall).toMatch(/^\^FO50,75\^XGR:TEST.GRF/)
+      expect(result.recall).toMatch(/\^FS$/)
+    })
+
+    test('buildDGAndRecall should handle null position', () => {
+      const mono = {
+        width: 8,
+        height: 1,
+        bytesPerRow: 1,
+        bytes: new Uint8Array([0x00])
+      }
+
+      const result = buildDGAndRecall('R:NULL.GRF', null, mono)
+
+      expect(result.dg).toMatch(/^~DGR:NULL.GRF/)
+      expect(result.recall).toMatch(/^\^XGR:NULL.GRF/)
+      expect(result.recall).not.toMatch(/\^FO/)
+    })
+
+    describe('clamp255 Utility Function', () => {
+      test('should clamp negative values to 0', () => {
+        expect(clamp255(-1)).toBe(0)
+        expect(clamp255(-100)).toBe(0)
+        expect(clamp255(-0.5)).toBe(0)
+      })
+
+      test('should clamp values over 255 to 255', () => {
+        expect(clamp255(256)).toBe(255)
+        expect(clamp255(300)).toBe(255)
+        expect(clamp255(1000)).toBe(255)
+      })
+
+      test('should pass through normal values unchanged', () => {
+        expect(clamp255(0)).toBe(0)
+        expect(clamp255(128)).toBe(128)
+        expect(clamp255(255)).toBe(255)
+        expect(clamp255(127.8)).toBe(127) // Should floor the value
+      })
     })
   })
 })
