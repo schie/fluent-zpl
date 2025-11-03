@@ -245,7 +245,7 @@ function normalizeGrfName(name: string): string {
   return n.toUpperCase()
 }
 
-const clamp255 = (n: number) => (n < 0 ? 0 : n > 255 ? 255 : n | 0)
+export const clamp255 = (n: number) => (n < 0 ? 0 : n > 255 ? 255 : n | 0)
 
 /* =========================
  * Convenience: end-to-end helpers
