@@ -1,6 +1,8 @@
 # @schie/fluent-zpl
 
 [![npm version](https://badge.fury.io/js/@schie%2Ffluent-zpl.svg)](https://www.npmjs.com/package/@schie/fluent-zpl)
+[![CI](https://github.com/schie/fluent-zpl/actions/workflows/ci.yml/badge.svg)](https://github.com/schie/fluent-zpl/actions/workflows/ci.yml)
+[![Super-Linter](https://github.com/schie/fluent-zpl/actions/workflows/super-linter.yml/badge.svg)](https://github.com/schie/fluent-zpl/actions/workflows/super-linter.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Test Coverage](https://img.shields.io/badge/coverage-97.58%25-brightgreen)](https://github.com/schie/fluent-zpl)
 [![code style: prettier][prettier-badge]][prettier]

@@ -1,0 +1,62 @@
+---
+#################################
+# Run Super-Linter on all files #
+#################################
+
+name: Super-Linter
+
+on:
+  # Trigger on push to main branch
+  push:
+    branches: [main]
+  # Trigger on pull requests to main branch
+  pull_request:
+    branches: [main]
+
+jobs:
+  super-lint:
+    name: Lint codebase
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      # To report GitHub Actions status checks
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Full git history is needed to get a proper diff for Super-Linter
+          fetch-depth: 0
+
+      - name: Super-Linter
+        uses: super-linter/super-linter@v7.1.0
+        env:
+          # To report GitHub Actions status checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # Validate changed files only for efficiency
+          VALIDATE_ALL_CODEBASE: false
+
+          # Enable core validations for TypeScript project
+          VALIDATE_TYPESCRIPT_PRETTIER: true
+          VALIDATE_JSON: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true
+          VALIDATE_GITHUB_ACTIONS: true
+
+          # Configuration files
+          TYPESCRIPT_PRETTIER_CONFIG_FILE: .prettierrc.json
+          JSON_PRETTIER_CONFIG_FILE: .prettierrc.json
+          YAML_PRETTIER_CONFIG_FILE: .prettierrc.json
+          MARKDOWN_CONFIG_FILE: .markdown-lint.yml
+
+          # Exclude patterns
+          FILTER_REGEX_EXCLUDE: .*/(node_modules|dist|coverage|\.git|__fixtures__)/.*
+
+          # Output configuration
+          LOG_LEVEL: INFO
+          SUPPRESS_POSSUM: true
+          CREATE_LOG_FILE: true

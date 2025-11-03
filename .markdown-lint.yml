@@ -1,0 +1,20 @@
+# Markdown Lint Configuration
+# https://github.com/markdownlint/markdownlint/blob/main/docs/RULES.md
+
+# Allow HTML in markdown (for badges)
+MD033: false
+
+# Allow duplicate headings (common in READMEs)
+MD024: false
+
+# Allow long lines (for code examples and URLs)
+MD013: false
+
+# Allow inline HTML
+MD041: false
+
+# Allow trailing punctuation in headers
+MD026: false
+
+# Allow bare URLs
+MD034: false
