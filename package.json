@@ -44,7 +44,9 @@
     "prepublishOnly": "npm run lint && npm test && npm run build",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
-    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "docs": "typedoc",
+    "docs:serve": "npx http-server docs"
   },
   "author": {
     "name": "Dustin Schie",
@@ -53,7 +55,14 @@
   },
   "license": "MIT",
   "keywords": [
-    "ZPL"
+    "ZPL",
+    "zebra",
+    "printer",
+    "labels",
+    "rfid",
+    "typescript",
+    "fluent",
+    "builder"
   ],
   "homepage": "https://github.com/schie/fluent-zpl#readme",
   "bugs": {
@@ -73,6 +82,8 @@
     "prettier": "^3.6.2",
     "ts-jest": "^29.3.4",
     "tsup": "^8.5.0",
+    "typedoc": "^0.28.14",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.3",
     "validate-conventional-commit": "^1.0.4"
   },

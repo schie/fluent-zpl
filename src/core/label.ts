@@ -22,6 +22,14 @@ import {
 import { emit } from './emit.js'
 import { findLastXZ, tokenizeZPL } from './parse.js'
 
+/**
+ * ZPL Label class
+ *
+ * @remarks
+ * The `Label` class provides a fluent, immutable API for constructing ZPL (Zebra Programming Language) labels.
+ * It supports adding text, barcodes, boxes, images, and RFID fields, as well as parsing existing ZPL strings.
+ * Each method returns a new `Label` instance with the added elements, allowing for method chaining.
+ */
 export class Label {
   /** Lossless token stream is the single source of truth for this Label */
   private readonly tokens: Token[]

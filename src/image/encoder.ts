@@ -6,6 +6,16 @@
  * Public types
  * ========================= */
 
+/**
+ * Dithering modes supported when converting RGBA to monochrome.
+ *
+ * @remarks
+ * The following dithering modes are available:
+ * - 'none': No dithering; direct thresholding.
+ * - 'threshold': Simple thresholding based on a specified threshold value.
+ * - 'fs': Floyd-Steinberg dithering for better visual quality.
+ * - 'ordered': Ordered dithering using a 4x4 Bayer matrix.
+ */
 export type DitherMode = 'none' | 'threshold' | 'fs' | 'ordered'
 
 export interface MonoOptions {

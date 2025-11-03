@@ -7,6 +7,19 @@ import { toDots } from '../_unit-helpers.js'
 import { tokenizeZPL } from '../core/parse.js'
 import { encodeDG, encodeGF, monoFromRGBA, type DitherMode } from './encoder.js'
 
+/**
+ * Options for inline images.
+ *
+ * @remarks
+ * This interface defines the configuration options for embedding an inline image in a ZPL label:
+ * - `at`: Position to place the image (in current label units)
+ * - `rgba`: Interleaved RGBA pixel data
+ * - `width`: Width of the image in pixels
+ * - `height`: Height of the image in pixels
+ * - `mode`: Dithering mode to use when converting to monochrome (default: "threshold")
+ * - `threshold`: Threshold value for dithering (0-255)
+ * - `invert`: Whether to invert the monochrome image
+ */
 export interface ImageInlineOpts {
   at: { x: number; y: number } // in current label units
   rgba: Uint8Array | Uint8ClampedArray // interleaved RGBA
@@ -17,6 +30,13 @@ export interface ImageInlineOpts {
   invert?: boolean
 }
 
+/**
+ * Options for cached images.
+ *
+ * @remarks
+ * This interface extends `ImageInlineOpts` by adding a `name` property for referencing a cached image asset:
+ * - `name`: Name of the cached image asset (e.g., "R:LOGO.GRF")
+ */
 export interface ImageCachedOpts extends ImageInlineOpts {
   name: string // e.g. "R:LOGO.GRF" (device + name)
 }
