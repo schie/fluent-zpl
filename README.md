@@ -20,6 +20,7 @@ A modern, type-safe TypeScript library for generating **ZPL (Zebra Programming L
 - 🔄 **Immutable** - All operations return new instances (safe chaining)
 - 📏 **Unit Aware** - Support for dots, millimeters, and inches with DPI conversion
 - ✅ **ZPL Compliant** - Generates valid ZPL according to specification
+- ⚙️ **Global Settings** - Support for `^CF`, `^BY`, `^FR` commands and ZPL comments
 - 🧪 **Thoroughly Tested** - Comprehensive test suite with high coverage
 - 📱 **Tree Shakeable** - Import only what you need
 - 🖼️ **Image Support** - Convert RGBA images to ZPL bitmaps
@@ -255,6 +256,42 @@ label.withMetadata({
 // Metadata is embedded as ZPL comments (^FX) for debugging
 ```
 
+### Global Settings
+
+Control global ZPL settings that affect subsequent commands:
+
+```typescript
+label
+  // Set global default font (^CF command)
+  .setDefaultFont({
+    family: 'F',
+    height: 60,
+    width: 60
+  })
+  .text({ at: { x: 50, y: 50 }, text: 'Uses global font' })
+
+  // Set global barcode defaults (^BY command)
+  .setBarcodeDefaults({
+    moduleWidth: 5,
+    wideToNarrowRatio: 2,
+    height: 270
+  })
+  .barcode({
+    at: { x: 50, y: 150 },
+    type: 'Code128',
+    data: '12345678' // Uses global height setting
+  })
+
+  // Field reverse effect (^FR command)
+  .box({
+    at: { x: 100, y: 200 },
+    size: { w: 200, h: 100 },
+    reverse: true // Reverses colors within field
+  })
+```
+
+These global settings generate the exact ZPL commands (`^CF`, `^BY`, `^FR`) found in complex label specifications, enabling precise control over printer behavior and optimized ZPL output.
+
 ### Unit Conversion
 
 ```typescript
@@ -355,6 +392,40 @@ const assetTag = Label.create({ w: 4, h: 2, units: 'in', dpi: 203 })
   })
 ```
 
+### Complex Shipping Label with Global Settings
+
+```typescript
+const complexLabel = Label.create({ w: 800, h: 1200, units: 'dot', dpi: 203 })
+  .comment('Top section with logo and company info')
+  .setDefaultFont({ family: 'F', height: 60 })
+
+  // Logo with field reverse effect
+  .box({ at: { x: 50, y: 50 }, size: { w: 100, h: 100 }, border: 100 })
+  .box({ at: { x: 75, y: 75 }, size: { w: 100, h: 100 }, border: 100, reverse: true })
+  .box({ at: { x: 93, y: 93 }, size: { w: 40, h: 40 }, border: 40 })
+
+  // Company name uses global font setting
+  .text({ at: { x: 220, y: 50 }, text: 'Intershipping, Inc.' })
+
+  .comment('Recipient address section')
+  .setDefaultFont({ family: 'A', height: 30 })
+  .text({ at: { x: 50, y: 300 }, text: 'John Doe' })
+  .text({ at: { x: 50, y: 340 }, text: '100 Main Street' })
+  .text({ at: { x: 50, y: 380 }, text: 'Springfield TN 39021' })
+
+  .comment('Barcode with global settings')
+  .setBarcodeDefaults({ moduleWidth: 5, wideToNarrowRatio: 2, height: 270 })
+  .barcode({
+    at: { x: 100, y: 550 },
+    type: 'Code128',
+    data: '12345678'
+    // Height comes from global ^BY setting
+  })
+
+  .setDefaultFont({ family: 'F', height: 190 })
+  .text({ at: { x: 470, y: 955 }, text: 'CA' })
+```
+
 ## 🧪 Testing and Validation
 
 This library includes comprehensive ZPL validation to ensure all generated output works with Zebra printers:
@@ -397,7 +468,7 @@ const zpl = label.toZPL()
   - `Label.parse(zpl)` - Parse existing ZPL
   - `.text(opts)` - Add text field
   - `.barcode(opts)` - Add barcode
-  - `.box(opts)` - Add graphics box
+  - `.box(opts)` - Add graphics box (supports `reverse: true` for ^FR)
   - `.caption(opts)` - Add simple text
   - `.qr(opts)` - Add QR code
   - `.addressBlock(opts)` - Add multi-line text
@@ -408,6 +479,8 @@ const zpl = label.toZPL()
   - `.epc(opts)` - Add EPC encoding (convenience method)
   - `.comment(text)` - Add ZPL comment (^FX)
   - `.withMetadata(meta)` - Add structured metadata as comments
+  - `.setDefaultFont(opts)` - Set global default font (^CF)
+  - `.setBarcodeDefaults(opts)` - Set global barcode settings (^BY)
   - `.toZPL()` - Generate ZPL string
 
 ### Utilities
@@ -430,7 +503,7 @@ const zpl = label.toZPL()
 Contributions are welcome! This project uses:
 
 - **TypeScript** for type safety
-- **Jest** for testing (153 tests, 97.58% coverage)
+- **Jest** for testing
 - **ESLint + Prettier** for code quality
 - **Commitizen** for conventional commits
 
