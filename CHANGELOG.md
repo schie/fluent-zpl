@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.0](https://github.com/schie/fluent-zpl/compare/v0.4.0...v0.5.0) (2025-11-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* renames `zpl` tagged template literal to `label`
+* String literals like 'A', 'B', 'Code128', 'mm' are now enums (FontFamily.A, Barcode.Code128, Units.Millimeter)
+
+### Features
+
+* adding `ZPLProgram`, renaming `zpl` tagged template, some updates to label, etc ([7a5d6dc](https://github.com/schie/fluent-zpl/commit/7a5d6dc479dca45e985dc952b44b01276a85145f))
+* adding comprehensive ZPL enhancements, type-safety improvements ([65a28d9](https://github.com/schie/fluent-zpl/commit/65a28d986070c3e05c2a5383bd796096f76bd369))
+
+
+### Miscellaneous Chores
+
+* v0.5.0 ([6658999](https://github.com/schie/fluent-zpl/commit/6658999715805daffbb7ad66accf0ad1986721bf))
+
 ## [0.4.0](https://github.com/schie/fluent-zpl/compare/v0.3.0...v0.4.0) (2025-11-03)
 
 
