@@ -1,9 +1,9 @@
 // src/label-template.ts
 // Tagged template for building Label instances from raw ZPL
 
-import type { DPI } from './_types.js'
-import { Units } from './_types.js'
-import { Label } from './core/label.js'
+import type { DPI } from './_types.js';
+import { Units } from './_types.js';
+import { Label } from './core/label.js';
 
 /**
  * Tagged template literal for parsing ZPL strings into Label instances.
@@ -15,6 +15,9 @@ import { Label } from './core/label.js'
  * Template literals can include interpolated values using ${} syntax, which will be
  * inserted into the ZPL string before parsing.
  *
+  * @note Whitespace (including indentation) is preserved exactly as written. Align your template
+  * strings to column 0 if you do not want leading spaces emitted with your ZPL.
+  *
  * @example
  * ```typescript
  * import { label } from '@schie/fluent-zpl'
@@ -37,46 +40,38 @@ import { Label } from './core/label.js'
  * @param values - Interpolated values
  * @returns Label instance for continued chaining
  */
-export function label(strings: TemplateStringsArray, ...values: (string | number)[]): Label
+export function label(strings: TemplateStringsArray, ...values: (string | number)[]): Label;
 export function label(
   strings: TemplateStringsArray,
   ...args: [...(string | number)[], { dpi?: DPI; units?: Units }]
-): Label
+): Label;
 export function label(
   strings: TemplateStringsArray,
   ...args: (string | number | { dpi?: DPI; units?: Units })[]
 ): Label {
   // Check if last argument is options object
-  const lastArg = args[args.length - 1]
-  const hasOptions = typeof lastArg === 'object' && lastArg !== null && !Array.isArray(lastArg)
+  const lastArg = args[args.length - 1];
+  const hasOptions = typeof lastArg === 'object' && lastArg !== null && !Array.isArray(lastArg);
 
   const values = hasOptions
     ? (args.slice(0, -1) as (string | number)[])
-    : (args as (string | number)[])
-  const options = hasOptions ? (lastArg as { dpi?: DPI; units?: Units }) : {}
+    : (args as (string | number)[]);
+  const options = hasOptions ? (lastArg as { dpi?: DPI; units?: Units }) : {};
 
-  // Construct the ZPL string by interleaving strings and values
-  let zplString = strings[0]
+  // Construct the ZPL string by interleaving raw string chunks and interpolated values.
+  // We do not trim or reformat the template—whitespace is preserved exactly as provided.
+  const templateParts = strings.raw;
+  let zplString = templateParts[0];
 
   for (let i = 0; i < values.length; i++) {
-    zplString += String(values[i]) + strings[i + 1]
+    zplString += String(values[i]) + templateParts[i + 1];
   }
 
-  // Clean up the ZPL string - remove indentation and normalize to compact format
-  // Remove leading/trailing whitespace, normalize line endings, and trim each line
-  zplString = zplString
-    .trim()
-    .replace(/\r\n|\r/g, '\n')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .join('')
-
   // Parse the ZPL string into a Label instance
-  const dpi: DPI = options.dpi ?? (203 as DPI)
-  const units: Units = options.units ?? Units.Dot
+  const dpi: DPI = options.dpi ?? (203 as DPI);
+  const units: Units = options.units ?? Units.Dot;
 
-  return Label.parse(zplString, dpi, units)
+  return Label.parse(zplString, dpi, units);
 }
 
 /**
@@ -93,6 +88,6 @@ export function label(
  */
 label.withOptions = function (options: { dpi?: DPI; units?: Units }) {
   return function (strings: TemplateStringsArray, ...values: (string | number)[]): Label {
-    return label(strings, ...values, options)
-  }
-}
+    return label(strings, ...values, options);
+  };
+};
