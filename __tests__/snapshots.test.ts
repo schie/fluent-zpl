@@ -101,7 +101,6 @@ describe('ZPL Output Snapshots', () => {
       const label = Label.create({ w: 400, h: 600 })
         .text({ at: { x: 50, y: 50 }, text: 'RFID Enabled' })
         .rfid({
-          at: { x: 50, y: 100 },
           epc: '3034257BF7194E4000000001'
         })
       expect(label.toZPL()).toMatchSnapshot()
@@ -109,7 +108,6 @@ describe('ZPL Output Snapshots', () => {
 
     test('EPC encoding convenience', () => {
       const label = Label.create({ w: 400, h: 600 }).epc({
-        at: { x: 50, y: 200 },
         epc: 'FEDCBA0987654321'
       })
       expect(label.toZPL()).toMatchSnapshot()

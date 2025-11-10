@@ -275,14 +275,12 @@ label.image({
 ```typescript
 // EPC encoding (convenience method)
 label.epc({
-  at: { x: 50, y: 100 },
   epc: '3014257BF7194E4000001A85', // 96-bit EPC in hex
   password: 'DEADBEEF', // Access password (optional)
 });
 
 // RFID field with specific memory bank
 label.rfid({
-  at: { x: 50, y: 100 },
   epc: '1234567890ABCDEF',
   bank: RFIDBank.USER,
   offset: 0,
@@ -292,7 +290,6 @@ label.rfid({
 
 // Read RFID tag data
 label.rfidRead({
-  at: { x: 50, y: 100 },
   bank: RFIDBank.EPC,
   offset: 0,
   length: 12,
@@ -490,7 +487,6 @@ const assetTag = Label.create({ w: 4, h: 2, units: Units.Inches, dpi: 203 })
     height: 60,
   })
   .epc({
-    at: { x: 0.25, y: 1.5 },
     epc: epcData, // 96-bit EPC hex string
     password: accessPassword,
   })

@@ -274,7 +274,6 @@ export class Label {
   epc(o: EPCOpts): Label {
     return this.rfid({
       epc: o.epc,
-      at: o.at,
       position: o.position,
       password: o.password,
       bank: RFIDBank.EPC,

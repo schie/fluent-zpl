@@ -340,7 +340,6 @@ export interface BoxOpts {
  *
  * @remarks
  * This interface defines the configuration options for adding RFID fields to a label:
- * - `at`: Specifies the x and y coordinates for the RFID field position.
  * - `epc`: The EPC data to encode, provided as a hexadecimal string.
  * - `position`: Optional distance from the label edge in dots.
  * - `password`: Optional password for protected operations, provided as a hexadecimal string.
@@ -349,10 +348,8 @@ export interface BoxOpts {
  * - `length`: Optional length of data to write.
  */
 export interface RFIDOpts {
-  at?: Position;
   /** EPC data to encode (hex string) */
   epc: string;
-  /** RFID positioning - distance from label edge in dots */
   position?: number;
   /** Password for protected operations (hex string) */
   password?: string;
@@ -474,13 +471,11 @@ export interface AddressBlockOpts {
  * @remarks
  * This interface defines the configuration options for EPC encoding:
  * - `epc`: The EPC data string to encode.
- * - `at`: Optional position coordinates.
  * - `position`: Optional distance from label edge.
  * - `password`: Optional password for protected operations.
  */
 export interface EPCOpts {
   epc: string;
-  at?: Position;
   position?: number;
   password?: string;
 }
@@ -490,14 +485,12 @@ export interface EPCOpts {
  *
  * @remarks
  * This interface defines the configuration options for reading RFID tag data:
- * - `at`: Optional position coordinates.
  * - `bank`: Optional memory bank to read from. Use `HostBuffer` to emit `^RFR,H`.
  * - `offset`: Optional offset within the memory bank (ignored for HostBuffer).
  * - `length`: Optional length of data to read (ignored for HostBuffer).
  * - `password`: Optional password for protected operations.
  */
 export interface RFIDReadOpts {
-  at?: Position;
   bank?: RFIDBank;
   offset?: number;
   length?: number;
