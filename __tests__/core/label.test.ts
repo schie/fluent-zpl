@@ -17,6 +17,7 @@ describe('Label Factory Methods', () => {
     const zpl = label.toZPL()
 
     expect(zpl).toContain('^XA')
+    expect(zpl).toContain('^PW400')
     expect(zpl).toContain('^LL600')
     expect(zpl).toContain('^XZ')
     expect(label.cfg.dpi).toBe(203)
@@ -34,6 +35,7 @@ describe('Label Factory Methods', () => {
 
     expect(label.cfg.dpi).toBe(300)
     expect(label.cfg.units).toBe(Units.Millimeter)
+    expect(zpl).toContain('^PW1181')
     expect(zpl).toContain('^LL177') // 150mm at 300 DPI ≈ 177 dots
   })
 
@@ -1107,7 +1109,7 @@ describe('ZPL Validation', () => {
       const zpl = label.toZPL()
 
       validateBasicZPLStructure(zpl)
-      expect(zpl).toBe('^XA^LL600^XZ')
+      expect(zpl).toBe('^XA^PW400^LL600^XZ')
     })
 
     test('should generate valid ZPL with proper label setup commands', () => {
@@ -1124,6 +1126,7 @@ describe('ZPL Validation', () => {
       validateBasicZPLStructure(zpl)
       expect(zpl).toContain('^POR')
       expect(zpl).toContain('^LH10,20')
+      expect(zpl).toContain('^PW400')
       expect(zpl).toContain('^LL600')
     })
   })
