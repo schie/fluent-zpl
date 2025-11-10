@@ -1,4 +1,4 @@
-import { label as labelTemplate } from '../src/index'
+import { label as labelTemplate } from '../src/label-template.js'
 
 describe('Label Tagged Template', () => {
   test('should parse simple ZPL template literal', () => {

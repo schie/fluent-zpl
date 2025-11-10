@@ -22,6 +22,12 @@ exports[`ZPL Output Snapshots RFID Labels basic RFID write 1`] = `"^XA^LL600^FO5
 
 exports[`ZPL Output Snapshots Special Characters and Escaping text with caret characters 1`] = `"^XA^LL600^FO50,100^AAN,28,28^FDPrice: $29.99 ^^includes tax^^^FS^XZ"`;
 
+exports[`ZPL Output Snapshots Special Characters and Escaping text with multiline content 1`] = `
+"^XA^LL600^FO50,100^AAN,28,28^FDLine 1
+Line 2
+Line 3^FS^XZ"
+`;
+
 exports[`ZPL Output Snapshots Special Characters and Escaping text with special symbols 1`] = `"^XA^LL600^FO50,100^AAN,28,28^FDSymbols: © ® ™ €^FS^FO50,150^AAN,28,28^FDMath: 2+2=4, 10×5=50^FS^XZ"`;
 
 exports[`ZPL Output Snapshots Text and Fonts simple text with default font 1`] = `"^XA^LL600^FO50,100^AAN,28,28^FDHello World^FS^XZ"`;

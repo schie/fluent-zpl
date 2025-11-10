@@ -1,7 +1,7 @@
 // Unit helpers tests - comprehensive coverage for unit conversion functions
 
-import type { DPI, Units } from '../src/index.js'
-import { dot, inch, mm, toDots } from '../src/index.js'
+import type { DPI, Units } from '../src/_types.js'
+import { dot, inch, mm, toDots } from '../src/_unit-helpers.js'
 
 describe('Unit Helper Functions', () => {
   describe('dot()', () => {

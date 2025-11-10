@@ -1,7 +1,7 @@
 // __tests__/image-registry.test.ts
 // Tests for image registry functionality
 
-import { ImageRegistry } from '../src/image/registry.js'
+import { ImageRegistry } from '../../src/image/registry.js'
 
 describe('ImageRegistry', () => {
   let registry: ImageRegistry

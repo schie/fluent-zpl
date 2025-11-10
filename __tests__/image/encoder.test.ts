@@ -10,7 +10,7 @@ import {
   monoFromRGBA,
   type DitherMode,
   type MonoBitmap
-} from '../src/image/encoder.js'
+} from '../../src/image/encoder.js'
 
 describe('Image Encoder', () => {
   describe('monoFromRGBA()', () => {
@@ -421,5 +421,189 @@ describe('Image Encoder', () => {
         expect(clamp255(127.8)).toBe(127) // Should floor the value
       })
     })
+  })
+})
+
+describe('clamp255 edge cases', () => {
+  test('handles invalid RGBA ranges', () => {
+    const rgba = new Uint8Array([
+      255,
+      255,
+      255,
+      255,
+      0,
+      0,
+      0,
+      255
+    ])
+
+    const mono = monoFromRGBA({
+      rgba,
+      width: 2,
+      height: 1,
+      mode: 'threshold',
+      threshold: 128
+    })
+
+    expect(mono.width).toBe(2)
+    expect(mono.bytes).toBeInstanceOf(Uint8Array)
+  })
+
+  test('handles extreme luminance values with Floyd-Steinberg', () => {
+    const rgba = new Uint8Array([
+      255,
+      255,
+      255,
+      255,
+      0,
+      0,
+      0,
+      255,
+      255,
+      255,
+      255,
+      255,
+      0,
+      0,
+      0,
+      255,
+      127,
+      127,
+      127,
+      255,
+      128,
+      128,
+      128,
+      255,
+      129,
+      129,
+      129,
+      255,
+      126,
+      126,
+      126,
+      255
+    ])
+
+    const mono = monoFromRGBA({
+      rgba,
+      width: 4,
+      height: 2,
+      mode: 'fs',
+      threshold: 127
+    })
+
+    expect(mono.width).toBe(4)
+    expect(mono.height).toBe(2)
+    expect(mono.bytesPerRow).toBe(1)
+    expect(mono.bytes.length).toBe(2)
+  })
+
+  test('handles checkerboard error diffusion', () => {
+    const size = 8
+    const rgba = new Uint8Array(size * size * 4)
+
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const i = (y * size + x) * 4
+        const isWhite = (x + y) % 2 === 0
+        const value = isWhite ? 255 : 0
+        rgba[i] = value
+        rgba[i + 1] = value
+        rgba[i + 2] = value
+        rgba[i + 3] = 255
+      }
+    }
+
+    const mono = monoFromRGBA({
+      rgba,
+      width: size,
+      height: size,
+      mode: 'fs'
+    })
+
+    expect(mono.width).toBe(size)
+    expect(mono.height).toBe(size)
+    expect(mono.bytes.length).toBe(size)
+  })
+
+  test('handles gradient across all clamp branches', () => {
+    const width = 16
+    const height = 1
+    const rgba = new Uint8Array(width * height * 4)
+
+    for (let x = 0; x < width; x++) {
+      const i = x * 4
+      const value = Math.floor((x / (width - 1)) * 255)
+      rgba[i] = value
+      rgba[i + 1] = value
+      rgba[i + 2] = value
+      rgba[i + 3] = 255
+    }
+
+    const modes: DitherMode[] = ['fs', 'ordered', 'threshold']
+
+    for (const mode of modes) {
+      const mono = monoFromRGBA({
+        rgba,
+        width,
+        height,
+        mode,
+        threshold: 128
+      })
+
+      expect(mono.width).toBe(width)
+      expect(mono.height).toBe(height)
+      expect(mono.bytes).toBeInstanceOf(Uint8Array)
+    }
+  })
+
+  test('handles negative overflow cases', () => {
+    const rgba = new Uint8Array([
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      1,
+      1,
+      1,
+      255,
+      2,
+      2,
+      2,
+      255,
+      3,
+      3,
+      3,
+      255,
+      4,
+      4,
+      4,
+      255
+    ])
+
+    const mono = monoFromRGBA({
+      rgba,
+      width: 8,
+      height: 2,
+      mode: 'fs',
+      threshold: 127
+    })
+
+    expect(mono.width).toBe(8)
+    expect(mono.height).toBe(2)
+    expect(mono.bytes.length).toBe(2)
   })
 })

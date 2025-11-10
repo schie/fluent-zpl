@@ -1,25 +1,15 @@
-// @schie/fluent-zpl - Comprehensive Test Suite
+// @schie/fluent-zpl - Label-focused Test Suite
 
-import type { Token } from '../src/_types.js'
-import { emit } from '../src/core/emit.js'
-import { tokenizeZPL } from '../src/core/parse.js'
+import { Label } from '../../src/core/label.js'
 import {
   Barcode,
   Fill,
   FontFamily,
   Justify,
-  Label,
-  MediaTracking,
   Orientation,
-  PrinterMode,
   RFIDBank,
-  ZPLProgram,
-  Units,
-  dot,
-  inch,
-  mm,
-  toDots
-} from '../src/index.js'
+  Units
+} from '../../src/_types.js'
 
 describe('Label Factory Methods', () => {
   test('Label.create() should create basic label with defaults', () => {
@@ -312,6 +302,19 @@ describe('Box/Graphics Functionality', () => {
     expect(zpl).toContain('^GB200,100,3,W,0^FS')
   })
 
+  test('box() should honor reverse drawing flag', () => {
+    const result = label.box({
+      at: { x: 60, y: 120 },
+      size: { w: 150, h: 60 },
+      border: 2,
+      fill: Fill.White,
+      reverse: true
+    })
+    const zpl = result.toZPL()
+
+    expect(zpl).toContain('^FR^GB150,60,2,W,0^FS')
+  })
+
   test('box() should handle unit conversion', () => {
     const labelMM = Label.create({ w: 100, h: 150, units: Units.Millimeter, dpi: 203 })
     const result = labelMM.box({
@@ -450,136 +453,6 @@ describe('Convenience Methods', () => {
     expect(zpl).toContain('^FDAnother valid line^FS')
     expect(zpl).toContain('^FO0,0') // First line
     expect(zpl).toContain('^FO0,100') // Second valid line (skipped empty ones: 0 + 25*4)
-  })
-})
-
-describe('ZPL Parsing/Tokenization', () => {
-  test('tokenizeZPL() should parse basic commands', () => {
-    const tokens = tokenizeZPL('^XA^LL600^XZ')
-
-    expect(tokens).toHaveLength(3)
-    expect(tokens[0]).toEqual({ k: 'Cmd', mark: '^', name: 'XA', params: '' })
-    expect(tokens[1]).toEqual({ k: 'Cmd', mark: '^', name: 'LL', params: '600' })
-    expect(tokens[2]).toEqual({ k: 'Cmd', mark: '^', name: 'XZ', params: '' })
-  })
-
-  test('tokenizeZPL() should parse FD...FS blocks', () => {
-    const tokens = tokenizeZPL('^FDHello World^FS')
-
-    expect(tokens).toHaveLength(2)
-    expect(tokens[0]).toEqual({ k: 'FD', data: 'Hello World' })
-    expect(tokens[1]).toEqual({ k: 'FS' })
-  })
-
-  test('tokenizeZPL() should handle multiline FD blocks', () => {
-    const tokens = tokenizeZPL('^FDLine 1\nLine 2^FS')
-
-    expect(tokens).toHaveLength(2)
-    expect(tokens[0]).toEqual({ k: 'FD', data: 'Line 1\nLine 2' })
-    expect(tokens[1]).toEqual({ k: 'FS' })
-  })
-
-  test('tokenizeZPL() should handle raw text between commands', () => {
-    const tokens = tokenizeZPL('Some text^XA^LL600More text^XZ')
-
-    expect(tokens[0]).toEqual({ k: 'Raw', text: 'Some text' })
-    expect(tokens[1]).toEqual({ k: 'Cmd', mark: '^', name: 'XA', params: '' })
-    expect(tokens[2]).toEqual({ k: 'Cmd', mark: '^', name: 'LL', params: '600More text' })
-    expect(tokens[3]).toEqual({ k: 'Cmd', mark: '^', name: 'XZ', params: '' })
-  })
-
-  test('tokenizeZPL() should handle tilde commands', () => {
-    const tokens = tokenizeZPL('~DGR:LOGO.GRF,100,10,ABC')
-
-    expect(tokens).toHaveLength(1)
-    expect(tokens[0]).toEqual({ k: 'Cmd', mark: '~', name: 'DG', params: 'R:LOGO.GRF,100,10,ABC' })
-  })
-
-  test('tokenizeZPL() should handle unterminated FD', () => {
-    const tokens = tokenizeZPL('^FDUnterminated text')
-
-    expect(tokens).toHaveLength(1)
-    expect(tokens[0]).toEqual({ k: 'FD', data: 'Unterminated text' })
-  })
-
-  test('tokenizeZPL() should handle Uint8Array input', () => {
-    const input = new TextEncoder().encode('^XA^LL600^XZ')
-    const tokens = tokenizeZPL(input)
-
-    expect(tokens).toHaveLength(3)
-    expect(tokens[0]).toEqual({ k: 'Cmd', mark: '^', name: 'XA', params: '' })
-  })
-})
-
-describe('ZPL Emission', () => {
-  test('emit() should reconstruct ZPL from tokens', () => {
-    const tokens: Token[] = [
-      { k: 'Cmd', mark: '^', name: 'XA', params: '' },
-      { k: 'Cmd', mark: '^', name: 'FO', params: '50,100' },
-      { k: 'FD', data: 'Hello World' },
-      { k: 'FS' },
-      { k: 'Cmd', mark: '^', name: 'XZ', params: '' }
-    ]
-
-    const zpl = emit(tokens)
-    expect(zpl).toBe('^XA^FO50,100^FDHello World^FS^XZ')
-  })
-
-  test('emit() should handle raw text tokens', () => {
-    const tokens: Token[] = [
-      { k: 'Raw', text: 'Some text' },
-      { k: 'Cmd', mark: '^', name: 'XA', params: '' }
-    ]
-
-    const zpl = emit(tokens)
-    expect(zpl).toBe('Some text^XA')
-  })
-
-  test('emit() should handle byte tokens', () => {
-    const tokens: Token[] = [{ k: 'Bytes', buf: new TextEncoder().encode('Test bytes') }]
-
-    const zpl = emit(tokens)
-    expect(zpl).toBe('Test bytes')
-  })
-
-  test('toZPL() should produce consistent output', () => {
-    const originalZPL = '^XA^FO50,100^A0N,28,28^FDTest^FS^XZ'
-    const label = Label.parse(originalZPL)
-    const reproduced = label.toZPL()
-
-    expect(reproduced).toBe(originalZPL)
-  })
-})
-
-describe('Unit Helpers', () => {
-  test('dot() should return input unchanged', () => {
-    expect(dot(100)).toBe(100)
-    expect(dot(0)).toBe(0)
-    expect(dot(999)).toBe(999)
-  })
-
-  test('mm() should convert millimeters to dots', () => {
-    expect(mm(25.4, 203)).toBe(203) // 1 inch = 25.4mm at 203 DPI
-    expect(mm(10, 203)).toBeCloseTo(80, 0) // 10mm ≈ 80 dots at 203 DPI
-    expect(mm(50, 300)).toBeCloseTo(591, 0) // 50mm at 300 DPI
-  })
-
-  test('inch() should convert inches to dots', () => {
-    expect(inch(1, 203)).toBe(203)
-    expect(inch(0.5, 203)).toBeCloseTo(102, 0)
-    expect(inch(2, 300)).toBe(600)
-  })
-
-  test('toDots() should convert based on units', () => {
-    expect(toDots(100, 203, 'dot')).toBe(100)
-    expect(toDots(25.4, 203, 'mm')).toBe(203)
-    expect(toDots(1, 203, 'in')).toBe(203)
-  })
-
-  test('toDots() should handle different DPI values', () => {
-    expect(toDots(1, 203, 'in')).toBe(203)
-    expect(toDots(1, 300, 'in')).toBe(300)
-    expect(toDots(1, 600, 'in')).toBe(600)
   })
 })
 
@@ -869,6 +742,105 @@ describe('Integration Scenarios', () => {
   })
 })
 
+describe('Real-world ZPL Examples', () => {
+  test('should generate valid shipping label ZPL', () => {
+    const label = Label.create({ w: 400, h: 600, dpi: 203, units: Units.Dot })
+      .text({
+        at: { x: 50, y: 50 },
+        text: 'FEDEX GROUND',
+        font: { family: FontFamily.B, h: 28, w: 28 }
+      })
+      .box({
+        at: { x: 10, y: 10 },
+        size: { w: 380, h: 580 },
+        border: 2
+      })
+      .text({
+        at: { x: 50, y: 100 },
+        text: 'SHIP TO:',
+        font: { family: FontFamily.A, h: 20, w: 20 }
+      })
+      .addressBlock({
+        at: { x: 50, y: 130 },
+        lines: ['JOHN DOE', '123 MAIN STREET', 'ANYTOWN NY 12345-6789'],
+        lineHeight: 25,
+        size: 20
+      })
+      .barcode({
+        at: { x: 50, y: 250 },
+        type: Barcode.Code128,
+        data: '1234567890123',
+        height: 80
+      })
+      .text({
+        at: { x: 50, y: 350 },
+        text: 'Tracking: 1234567890123',
+        font: { family: FontFamily.A, h: 16, w: 16 }
+      })
+
+    const zpl = label.toZPL()
+
+    expect(zpl).toMatch(/^\^XA.*\^XZ$/)
+    expect(zpl).toContain('^LL600')
+    expect(zpl).toContain('FEDEX GROUND')
+    expect(zpl).toContain('SHIP TO:')
+    expect(zpl).toContain('JOHN DOE')
+    expect(zpl).toContain('123 MAIN STREET')
+    expect(zpl).toContain('ANYTOWN NY 12345-6789')
+    expect(zpl).toContain('Tracking: 1234567890123')
+    expect(zpl).toContain('^GB380,580,2,B,0')
+    expect(zpl).toContain('^BCN,80,Y,N,N')
+    expect(zpl).toContain('^FD1234567890123^FS')
+
+    const fieldOrigins = zpl.match(/\^FO\d+,\d+/g) || []
+    expect(fieldOrigins.length).toBeGreaterThan(0)
+
+    const fdBlocks = zpl.match(/\^FD[^]*?\^FS/g) || []
+    expect(fdBlocks.length).toBeGreaterThan(0)
+  })
+
+  test('should generate valid product label with QR code', () => {
+    const label = Label.create({ w: 300, h: 200, units: Units.Millimeter, dpi: 203 })
+      .caption({
+        at: { x: 10, y: 10 },
+        text: 'PRODUCT LABEL',
+        size: 24,
+        family: FontFamily.B
+      })
+      .text({
+        at: { x: 10, y: 40 },
+        text: 'SKU: ABC-123-XYZ',
+        font: { family: FontFamily.A, h: 16, w: 16 }
+      })
+      .qr({
+        at: { x: 180, y: 40 },
+        text: 'https://example.com/product/ABC-123-XYZ',
+        module: 3
+      })
+      .box({
+        at: { x: 5, y: 5 },
+        size: { w: 290, h: 190 },
+        border: 1
+      })
+      .text({
+        at: { x: 10, y: 160 },
+        text: 'Price: $29.99',
+        font: { family: FontFamily.B, h: 20, w: 20 }
+      })
+
+    const zpl = label.toZPL()
+
+    expect(zpl).toMatch(/^\^XA.*\^XZ$/)
+    expect(zpl).toContain('^LL1598') // 200mm at 203 DPI ≈ 1598 dots
+    expect(zpl).toContain('PRODUCT LABEL')
+    expect(zpl).toContain('SKU: ABC-123-XYZ')
+    expect(zpl).toContain('Price: $29.99')
+    expect(zpl).toContain('^BQN,2,3')
+    expect(zpl).toContain('https://example.com/product/ABC-123-XYZ')
+    expect(zpl).toContain('^GB')
+  })
+})
+
 describe('Global Settings Functionality', () => {
   test('setDefaultFont() should generate CF command with all parameters', () => {
     const label = Label.create({ w: 400, h: 600 }).setDefaultFont({
@@ -981,97 +953,494 @@ describe('Global Settings Functionality', () => {
   })
 })
 
-describe('RFID helpers', () => {
+describe('RFID Fields', () => {
+  test('should create basic RFID field', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfid({
+      epc: '3014257BF7194E4000001A85'
+    })
+    expect(result.toZPL()).toContain('^RFW,H^FD3014257BF7194E4000001A85^FS')
+  })
+
+  test('should create RFID field with custom parameters', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfid({
+      epc: 'USERDATA123456',
+      bank: RFIDBank.USER,
+      offset: 4,
+      length: 7
+    })
+    expect(result.toZPL()).toContain('^RFW,U,4,7^FDUSERDATA123456^FS')
+  })
+
+  test('should create RFID field with TID bank', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfid({
+      epc: 'TID123456789',
+      bank: RFIDBank.TID,
+      offset: 2,
+      length: 6
+    })
+    expect(result.toZPL()).toContain('^RFW,T,2,6^FDTID123456789^FS')
+  })
+
+  test('should reject HostBuffer writes', () => {
+    expect(() =>
+      Label.create({ w: 400, h: 600 }).rfid({
+        epc: 'AA',
+        bank: RFIDBank.HostBuffer
+      })
+    ).toThrow('HostBuffer is read-only')
+  })
+
+  test('should create RFID read command', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfidRead({
+      bank: RFIDBank.EPC,
+      offset: 0,
+      length: 8
+    })
+    expect(result.toZPL()).toContain('^RFR,E,0,8^FD^FS')
+  })
+
+  test('should create RFID read command for USER bank', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfidRead({
+      bank: RFIDBank.USER,
+      offset: 4,
+      length: 12
+    })
+    expect(result.toZPL()).toContain('^RFR,U,4,12^FD^FS')
+  })
+
+  test('should create RFID read command for TID bank', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfidRead({
+      bank: RFIDBank.TID,
+      offset: 0,
+      length: 6
+    })
+    expect(result.toZPL()).toContain('^RFR,T,0,6^FD^FS')
+  })
+
+  test('should create RFID read command with default parameters', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfidRead({})
+    expect(result.toZPL()).toContain('^RFR,E,0,8^FD^FS')
+  })
+
   test('rfidRead() emits host buffer command', () => {
     const label = Label.create({ w: 400, h: 600 }).rfidRead({ bank: RFIDBank.HostBuffer })
     expect(label.toZPL()).toContain('^RFR,H^FD^FS')
   })
+
+  test('rfidRead() still works when called without arguments', () => {
+    const label = Label.create({ w: 400, h: 600 }) as any
+    const result = label.rfidRead()
+    expect(result.toZPL()).toContain('^RFR,E,0,8^FD^FS')
+  })
+
+  test('should create RFID host buffer read command', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfidRead({ bank: RFIDBank.HostBuffer })
+    expect(result.toZPL()).toContain('^RFR,H^FD^FS')
+  })
+
+  test('should create RFID read command with partial defaults', () => {
+    const result = Label.create({ w: 400, h: 600 }).rfidRead({
+      bank: RFIDBank.USER
+    })
+    expect(result.toZPL()).toContain('^RFR,U,0,8^FD^FS')
+  })
+
+  test('should create EPC convenience method', () => {
+    const result = Label.create({ w: 400, h: 600 }).epc({
+      epc: '3014257BF7194E4000001A85'
+    })
+    expect(result.toZPL()).toContain('^RFW,H^FD3014257BF7194E4000001A85^FS')
+  })
+
+  test('should maintain ZPL structure for RFID writes', () => {
+    const zpl = Label.create({ w: 400, h: 600 })
+      .rfid({ epc: '1234567890ABCDEF' })
+      .toZPL()
+    expect(zpl).toMatch(/^\^XA.*\^XZ$/)
+    expect(zpl).toMatch(/\^RFW,H\^FD[A-F0-9]+\^FS/)
+  })
+
+  test('rfidRead() should fail on unsupported bank', () => {
+    expect(() =>
+      Label.create({ w: 400, h: 600 }).rfidRead({
+        bank: 'INVALID' as RFIDBank
+      })
+    ).toThrow('Unsupported RFID bank')
+  })
 })
 
-describe('ZPLProgram', () => {
-  test('printerConfig builds typed setup block', () => {
-    const program = ZPLProgram.create()
-      .printerConfig({
-        mode: PrinterMode.TearOff,
-        mediaTracking: MediaTracking.NonContinuous,
-        printWidth: 801,
-        printSpeed: 4,
-        darkness: 10,
-        labelHome: { x: 0, y: 0 }
-      })
-      .raw('^JUS')
+describe('ZPL Validation', () => {
+  function validateBasicZPLStructure(zpl: string) {
+    expect(zpl).toMatch(/^\^XA.*\^XZ$/)
 
-    expect(program.toZPL()).toBe('^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS')
-  })
-
-  test('label() factory composes label formats', () => {
-    const program = ZPLProgram.create().label(
-      (label) => label.text({ at: { x: 40, y: 60 }, text: 'Program Label' }),
-      { w: 400, h: 600 }
-    )
-
-    const zpl = program.toZPL()
-    expect(zpl).toContain('^XA')
-    expect(zpl).toContain('^FDProgram Label^FS')
-    expect(zpl).toContain('^XZ')
-  })
-
-  test('rfidRead() can be emitted outside labels', () => {
-    const zpl = ZPLProgram.create().rfidRead({ bank: RFIDBank.HostBuffer }).toZPL()
-    expect(zpl).toBe('^RFR,H^FD^FS')
-  })
-
-  test('rfid() can be emitted outside labels', () => {
-    const zpl = ZPLProgram.create().rfid({ epc: 'DEADBEEF' }).toZPL()
-    expect(zpl).toBe('^RFW,H^FDDEADBEEF^FS')
-  })
-
-  test('comment() injects ^FX tokens in sequence', () => {
-    const zpl = ZPLProgram.create().comment('Job note').toZPL()
-    expect(zpl).toBe('^FX Job note')
-  })
-
-  test('printerConfig additionalCommands are trimmed and filtered', () => {
-    const zpl = ZPLProgram.create()
-      .printerConfig({ additionalCommands: ['^JUS', '   ', '  ^IDR:LOGO.GRF  '] })
-      .toZPL()
-
-    expect(zpl).toBe('^JUS^IDR:LOGO.GRF')
-  })
-
-  test('raw() ignores empty payloads without cloning', () => {
-    const program = ZPLProgram.create()
-    const result = program.raw('')
-    expect(result).toBe(program)
-    expect(result.toZPL()).toBe('')
-  })
-
-  test('label() accepts existing Label instances', () => {
-    const baseLabel = Label.create({ w: 400, h: 600 }).text({
-      at: { x: 10, y: 10 },
-      text: 'Existing'
+    const commandPattern = /[\^~][A-Z][A-Z0-9]*(?=[^A-Z]|$)/g
+    const commands = zpl.match(commandPattern) || []
+    commands.forEach((cmd) => {
+      expect(cmd).toMatch(/^[\^~][A-Z][A-Z0-9]*$/)
     })
 
-    const zpl = ZPLProgram.create().label(baseLabel).toZPL()
-    expect(zpl).toContain('^FDExisting^FS')
+    expect(zpl).not.toMatch(/\^A[A-Z0-9][NRI],\^/)
+
+    const fdMatches = zpl.match(/\^FD[^]*?\^FS/g)
+    if (fdMatches) {
+      fdMatches.forEach((match) => {
+        expect(match).toMatch(/^\^FD.*\^FS$/)
+      })
+    }
+
+    const orphanedFD = zpl.match(/\^FD(?![^]*?\^FS)/g)
+    expect(orphanedFD).toBeNull()
+  }
+
+  function validateFieldOrigins(zpl: string) {
+    const foMatches = zpl.match(/\^FO\d+,\d+/g)
+    if (foMatches) {
+      foMatches.forEach((match) => {
+        expect(match).toMatch(/^\^FO\d+,\d+$/)
+      })
+    }
+  }
+
+  describe('Basic Label Structure', () => {
+    test('should generate valid ZPL structure for empty label', () => {
+      const label = Label.create({ w: 400, h: 600 })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toBe('^XA^LL600^XZ')
+    })
+
+    test('should generate valid ZPL with proper label setup commands', () => {
+      const label = Label.create({
+        w: 400,
+        h: 600,
+        dpi: 203,
+        units: Units.Dot,
+        orientation: Orientation.Rotated90,
+        origin: { x: 10, y: 20 }
+      })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toContain('^POR')
+      expect(zpl).toContain('^LH10,20')
+      expect(zpl).toContain('^LL600')
+    })
   })
 
-  test('label() factory requires options', () => {
-    expect(() =>
-      ZPLProgram.create().label((label) => label.text({ at: { x: 0, y: 0 }, text: 'oops' }))
-    ).toThrow('Label options are required')
+  describe('Text Field Validation', () => {
+    test('should generate valid text fields with proper font commands', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'Hello World',
+        font: { family: FontFamily.A, h: 28, w: 28 }
+      })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      validateFieldOrigins(zpl)
+
+      expect(zpl).toContain('^FO50,100')
+      expect(zpl).toContain('^AAN,28,28')
+      expect(zpl).toContain('^FDHello World^FS')
+    })
+
+    test('should handle text rotation properly', () => {
+      ;(['N', 'R', 'I', 'B'] as const).forEach((rotation) => {
+        const label = Label.create({ w: 400, h: 600 }).text({
+          at: { x: 50, y: 100 },
+          text: 'Test',
+          rotate: rotation,
+          font: { family: FontFamily.A, h: 20, w: 20 }
+        })
+        const zpl = label.toZPL()
+
+        validateBasicZPLStructure(zpl)
+        expect(zpl).toContain(`^AA${rotation},20,20`)
+      })
+    })
+
+    test('should properly escape carets in text data', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'Text with ^caret and ^^double'
+      })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toContain('^FDText with ^^caret and ^^^^double^FS')
+    })
+
+    test('should generate valid text wrapping commands', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'Long text that wraps',
+        wrap: {
+          width: 200,
+          lines: 5,
+          spacing: 2,
+          justify: Justify.Center
+        }
+      })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toContain('^FB200,5,2,C,0')
+    })
   })
 
-  test('printerConfig() without commands is a no-op', () => {
-    const program = ZPLProgram.create()
-    const result = program.printerConfig({})
-    expect(result).toBe(program)
-    expect(result.toZPL()).toBe('')
+  describe('Barcode Validation', () => {
+    const barcodeTypes = [
+      Barcode.Code128,
+      Barcode.Code39,
+      Barcode.EAN13,
+      Barcode.UPCA,
+      Barcode.ITF,
+      Barcode.PDF417,
+      Barcode.QRCode,
+      Barcode.DataMatrix
+    ] as const
+
+    barcodeTypes.forEach((type) => {
+      test(`should generate valid ${type} barcode`, () => {
+        const label = Label.create({ w: 400, h: 600 }).barcode({
+          at: { x: 50, y: 100 },
+          type,
+          data: 'TEST123'
+        })
+        const zpl = label.toZPL()
+
+        validateBasicZPLStructure(zpl)
+        validateFieldOrigins(zpl)
+        expect(zpl).toContain('^FDTEST123^FS')
+      })
+    })
   })
 
-  test('internal append() short-circuits on empty arrays', () => {
-    const program = ZPLProgram.create()
-    const result = (program as any).append([])
-    expect(result).toBe(program)
+  describe('Graphics Validation', () => {
+    test('should generate valid box commands', () => {
+      const label = Label.create({ w: 400, h: 600 }).box({
+        at: { x: 10, y: 10 },
+        size: { w: 380, h: 580 },
+        border: 3,
+        fill: Fill.Black
+      })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toContain('^GB380,580,3,B,0')
+    })
+
+    test('should generate valid comment commands', () => {
+      const label = Label.create({ w: 400, h: 600 }).comment('This is a comment')
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toContain('^FX This is a comment')
+    })
+  })
+
+  describe('Units and DPI Validation', () => {
+    test('should convert millimeter units correctly', () => {
+      const label = Label.create({ w: 100, h: 60, units: Units.Millimeter, dpi: 300 }).text({
+        at: { x: 10, y: 15 },
+        text: 'Metric Label'
+      })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toContain('^FO118,177') // 10mm & 15mm at 300 DPI
+    })
+
+    test('should convert inch units correctly', () => {
+      const label = Label.create({ w: 4, h: 2.5, units: Units.Inch, dpi: 600 }).text({
+        at: { x: 0.5, y: 0.5 },
+        text: 'High DPI Label'
+      })
+      const zpl = label.toZPL()
+
+      validateBasicZPLStructure(zpl)
+      expect(zpl).toContain('^FO300,300')
+    })
+  })
+})
+
+describe('ZPL Output Snapshots', () => {
+  describe('Basic Labels', () => {
+    test('empty label with defaults', () => {
+      const label = Label.create({ w: 400, h: 600 })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('empty label with custom settings', () => {
+      const label = Label.create({
+        w: 4,
+        h: 6,
+        units: Units.Inch,
+        dpi: 300,
+        orientation: Orientation.Rotated90,
+        origin: { x: 10, y: 20 }
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+  })
+
+  describe('Text and Fonts', () => {
+    test('simple text with default font', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'Hello World'
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('text with custom font and rotation', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'Rotated Text',
+        font: { family: FontFamily.B, h: 32, w: 32 },
+        rotate: Orientation.Rotated90
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('wrapped text field', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'This is a long text that should wrap across multiple lines automatically',
+        font: { family: FontFamily.A, h: 24, w: 24 },
+        wrap: { width: 300, lines: 3, spacing: 5, justify: 'J' }
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+  })
+
+  describe('Barcodes', () => {
+    test('Code128 barcode', () => {
+      const label = Label.create({ w: 400, h: 600 }).barcode({
+        at: { x: 50, y: 200 },
+        type: Barcode.Code128,
+        data: '123456789',
+        height: 100
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('QR code with options', () => {
+      const label = Label.create({ w: 400, h: 600 }).qr({
+        at: { x: 100, y: 100 },
+        text: 'https://example.com/product/12345',
+        module: 4,
+        rotate: Orientation.Normal
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+  })
+
+  describe('Graphics and Boxes', () => {
+    test('simple box', () => {
+      const label = Label.create({ w: 400, h: 600 }).box({
+        at: { x: 10, y: 10 },
+        size: { w: 380, h: 580 },
+        border: 2
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('filled box', () => {
+      const label = Label.create({ w: 400, h: 600 }).box({
+        at: { x: 50, y: 50 },
+        size: { w: 300, h: 100 },
+        border: 3,
+        fill: Fill.Black
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+  })
+
+  describe('RFID Labels', () => {
+    test('basic RFID write', () => {
+      const label = Label.create({ w: 400, h: 600 })
+        .text({ at: { x: 50, y: 50 }, text: 'RFID Enabled' })
+        .rfid({
+          epc: '3034257BF7194E4000000001'
+        })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('EPC encoding convenience', () => {
+      const label = Label.create({ w: 400, h: 600 }).epc({
+        epc: 'FEDCBA0987654321'
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+  })
+
+  describe('Comments and Metadata', () => {
+    test('label with comments', () => {
+      const label = Label.create({ w: 400, h: 600 })
+        .comment('This is a test label')
+        .text({ at: { x: 50, y: 100 }, text: 'Test Label' })
+        .comment('End of content')
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('label with metadata', () => {
+      const label = Label.create({ w: 400, h: 600 })
+        .text({ at: { x: 50, y: 100 }, text: 'Test Label' })
+        .withMetadata({
+          generator: '@schie/fluent-zpl',
+          version: '1.0.0',
+          created: '2025-01-01T00:00:00.000Z'
+        })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+  })
+
+  describe('Units and DPI', () => {
+    test('millimeter units at 300 DPI', () => {
+      const label = Label.create({ w: 100, h: 60, units: Units.Millimeter, dpi: 300 })
+        .text({ at: { x: 10, y: 15 }, text: 'Metric Label' })
+        .box({ at: { x: 5, y: 5 }, size: { w: 90, h: 50 } })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('inch units at 600 DPI', () => {
+      const label = Label.create({ w: 4, h: 2.5, units: Units.Inch, dpi: 600 })
+        .text({ at: { x: 0.5, y: 0.5 }, text: 'High DPI Label' })
+        .qr({ at: { x: 2.5, y: 0.5 }, text: 'HIGH-RES' })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+  })
+
+  describe('Special Characters and Escaping', () => {
+    test('text with caret characters', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'Price: $29.99 ^includes tax^'
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('text with special symbols', () => {
+      const label = Label.create({ w: 400, h: 600 })
+        .text({
+          at: { x: 50, y: 100 },
+          text: 'Symbols: © ® ™ €'
+        })
+        .text({
+          at: { x: 50, y: 150 },
+          text: 'Math: 2+2=4, 10×5=50'
+        })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
+
+    test('text with multiline content', () => {
+      const label = Label.create({ w: 400, h: 600 }).text({
+        at: { x: 50, y: 100 },
+        text: 'Line 1\nLine 2\nLine 3'
+      })
+      expect(label.toZPL()).toMatchSnapshot()
+    })
   })
 })
