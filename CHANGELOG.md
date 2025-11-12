@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1](https://github.com/schie/fluent-zpl/compare/v0.5.0...v0.5.1) (2025-11-12)
+
+
+### Bug Fixes
+
+* **label-template:** preserving whitespace verbatim ([30e1a39](https://github.com/schie/fluent-zpl/commit/30e1a393728d14cba64f9d86af07a913749a68bd))
+* removing CLI vestiges ([9441e3c](https://github.com/schie/fluent-zpl/commit/9441e3cc622d030d6638123e1db1c4a3c5a50137))
+
 ## [0.5.0](https://github.com/schie/fluent-zpl/compare/v0.4.0...v0.5.0) (2025-11-10)
 
 ### ⚠ BREAKING CHANGES
