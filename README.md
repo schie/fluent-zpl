@@ -688,7 +688,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-Built with ❤️ for the Zebra printer community
+Made with ❤️ by [@schie](https://github.com/schie)
 
 [prettier-badge]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg
 [prettier]: https://github.com/prettier/prettier
