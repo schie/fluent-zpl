@@ -531,7 +531,7 @@ const complexLabel = Label.create({ w: 800, h: 1200, units: Units.Dots, dpi: 203
   .text({ at: { x: 470, y: 955 }, text: 'CA' });
 ```
 
-### Complex Shipping Label with Global Settings
+### Complex Shipping Label with Global Settings (string literal helpers)
 
 ```typescript
 const complexLabel = Label.create({ w: 800, h: 1200, units: 'dot', dpi: 203 })
