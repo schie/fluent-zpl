@@ -2,6 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/@schie%2Ffluent-zpl.svg)](https://www.npmjs.com/package/@schie/fluent-zpl)
 [![CI](https://github.com/schie/fluent-zpl/actions/workflows/ci.yml/badge.svg)](https://github.com/schie/fluent-zpl/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/schie/fluent-zpl/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/schie/fluent-zpl/actions/workflows/github-code-scanning/codeql)
 [![Super-Linter](https://github.com/schie/fluent-zpl/actions/workflows/super-linter.yml/badge.svg)](https://github.com/schie/fluent-zpl/actions/workflows/super-linter.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![codecov](https://codecov.io/gh/schie/fluent-zpl/branch/main/graph/badge.svg)](https://codecov.io/gh/schie/fluent-zpl)
