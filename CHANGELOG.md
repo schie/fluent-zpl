@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/schie/fluent-zpl/compare/v0.5.1...v0.6.0) (2025-11-16)
+
+
+### Features
+
+* replacing `type DiterMode` with `enum DitherMode` ([341c1fe](https://github.com/schie/fluent-zpl/commit/341c1fe6f1eef79a14c8f1a94fd49f1ef1a65bba))
+
 ## [0.5.1](https://github.com/schie/fluent-zpl/compare/v0.5.0...v0.5.1) (2025-11-12)
 
 
