@@ -100,7 +100,8 @@ export class Label {
       const lines = o.wrap.lines ?? 10;
       const spacing = clamp0(o.wrap.spacing ?? 0);
       const just = o.wrap.justify ?? 'L';
-      parts.push(`^FB${width},${lines},${spacing},${just},0`);
+      const hangingIndent = clamp0(o.wrap.hangingIndent ?? 0);
+      parts.push(`^FB${width},${lines},${spacing},${just},${hangingIndent}`);
     }
 
     parts.push(`^FD${Label.escFD(o.text)}^FS`);
