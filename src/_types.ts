@@ -268,14 +268,20 @@ export enum RFIDBank {
  * - `text`: The actual text string to be printed.
  * - `font`: Optional font settings including family, height, and width.
  * - `rotate`: Optional orientation of the text (N, R, I, B).
- * - `wrap`: Optional text wrapping settings including width, number of lines, spacing, and justification.
+ * - `wrap`: Optional text wrapping settings including width, number of lines, spacing, justification, and hanging indent.
  */
 export interface TextOpts {
   at: Position;
   text: string;
   font?: { family?: FontFamily; h?: number; w?: number };
   rotate?: Orientation;
-  wrap?: { width: number; lines?: number; spacing?: number; justify?: Justify };
+  wrap?: {
+    width: number;
+    lines?: number;
+    spacing?: number;
+    justify?: Justify;
+    hangingIndent?: number;
+  };
 }
 
 /**

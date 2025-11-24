@@ -167,6 +167,40 @@ describe('Text Functionality', () => {
     expect(zpl).toContain('^FB100,3,0,L,0');
   });
 
+  test('text() should handle wrap with hanging indent', () => {
+    const result = label.text({
+      at: { x: 50, y: 100 },
+      text: 'This is a paragraph with hanging indent for second and subsequent lines',
+      wrap: {
+        width: 200,
+        lines: 5,
+        spacing: 0,
+        justify: Justify.Left,
+        hangingIndent: 20,
+      },
+    });
+    const zpl = result.toZPL();
+
+    expect(zpl).toContain('^FB200,5,0,L,20');
+  });
+
+  test('text() should handle wrap with all parameters', () => {
+    const result = label.text({
+      at: { x: 50, y: 100 },
+      text: 'Full featured text block with all wrap options',
+      wrap: {
+        width: 300,
+        lines: 10,
+        spacing: 5,
+        justify: Justify.Justified,
+        hangingIndent: 15,
+      },
+    });
+    const zpl = result.toZPL();
+
+    expect(zpl).toContain('^FB300,10,5,J,15');
+  });
+
   test('text() should escape carets in text', () => {
     const result = label.text({
       at: { x: 50, y: 100 },

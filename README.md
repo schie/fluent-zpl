@@ -185,6 +185,8 @@ label
       width: 200,
       lines: 3,
       justify: Justify.Center, // Center justified
+      spacing: 2, // Add 2 dots between lines
+      hangingIndent: 10, // Indent 2nd+ lines by 10 dots
     },
   })
 
