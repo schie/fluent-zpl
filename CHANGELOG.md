@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/schie/fluent-zpl/compare/v0.6.0...v0.7.0) (2025-11-25)
+
+
+### Features
+
+* support hanging indent in text wrapping ([de8118c](https://github.com/schie/fluent-zpl/commit/de8118c181d9ccd832a56ab08262ea2056b16a03))
+
 ## [0.6.0](https://github.com/schie/fluent-zpl/compare/v0.5.1...v0.6.0) (2025-11-16)
 
 
