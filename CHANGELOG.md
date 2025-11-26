@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/schie/fluent-zpl/compare/v0.8.0...v0.9.0) (2025-11-26)
+
+
+### Features
+
+* adding PrinterConfig ([7b41e2f](https://github.com/schie/fluent-zpl/commit/7b41e2f7a8dff18a0a2b0cd1635617dd23ad6fcb))
+
 ## [0.8.0](https://github.com/schie/fluent-zpl/compare/v0.7.0...v0.8.0) (2025-11-26)
 
 
