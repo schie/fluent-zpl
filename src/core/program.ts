@@ -10,10 +10,10 @@ import type {
   Token,
 } from '../_types.js';
 import { Units } from '../_types.js';
-import { toDots } from '../_unit-helpers.js';
 import { emit } from './emit.js';
 import { Label } from './label.js';
 import { tokenizeZPL } from './parse.js';
+import { buildPrinterConfigTokens } from './printer-config.js';
 import { buildRFIDReadTokens, buildRFIDWriteTokens } from './rfid.js';
 
 export interface ProgramOptions {
@@ -89,46 +89,3 @@ export class ZPLProgram {
     return labelOrFactory(Label.create(opts));
   }
 }
-
-const clamp = (value: number, min: number, max: number): number => {
-  return Math.min(max, Math.max(min, Math.round(value)));
-};
-
-const buildPrinterConfigTokens = (
-  cfg: { dpi: DPI; units: Units },
-  opts: PrinterConfigOpts,
-): Token[] => {
-  const commands: string[] = [];
-
-  if (opts.mode) commands.push(`^MM${opts.mode}`);
-  if (opts.mediaTracking) commands.push(`^MN${opts.mediaTracking}`);
-  if (opts.printWidth != null) {
-    commands.push(`^PW${toDots(opts.printWidth, cfg.dpi, cfg.units)}`);
-  }
-
-  if (opts.printSpeed != null || opts.slewSpeed != null || opts.backfeedSpeed != null) {
-    const parts = [opts.printSpeed, opts.slewSpeed, opts.backfeedSpeed].map((value) =>
-      value == null ? '' : clamp(value, 0, 30).toString(),
-    );
-    while (parts.length && parts[parts.length - 1] === '') parts.pop();
-    if (parts.length) commands.push(`^PR${parts.join(',')}`);
-  }
-
-  if (opts.darkness != null) commands.push(`^MD${clamp(opts.darkness, -30, 30)}`);
-
-  if (opts.labelHome) {
-    const x = toDots(opts.labelHome.x, cfg.dpi, cfg.units);
-    const y = toDots(opts.labelHome.y, cfg.dpi, cfg.units);
-    commands.push(`^LH${x},${y}`);
-  }
-
-  if (opts.configuration) commands.push(`^JU${opts.configuration}`);
-
-  if (opts.additionalCommands?.length) {
-    for (const cmd of opts.additionalCommands) {
-      if (cmd && cmd.trim().length) commands.push(cmd.trim());
-    }
-  }
-
-  return commands.length ? tokenizeZPL(commands.join('')) : [];
-};
