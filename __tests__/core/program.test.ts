@@ -83,6 +83,11 @@ describe('ZPLProgram', () => {
     expect(result.toZPL()).toBe('');
   });
 
+  test('raw() appends non-empty ZPL chunks', () => {
+    const zpl = ZPLProgram.create().raw('^FX hello').toZPL();
+    expect(zpl).toBe('^FX hello');
+  });
+
   test('printerConfig() without commands is a no-op', () => {
     const program = ZPLProgram.create();
     const result = program.printerConfig({});
