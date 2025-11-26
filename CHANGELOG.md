@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/schie/fluent-zpl/compare/v0.7.0...v0.8.0) (2025-11-26)
+
+
+### Features
+
+* **zplprogram:** adding load/save configuration to printer config ([7ee51cb](https://github.com/schie/fluent-zpl/commit/7ee51cb46084f53a97125d450d9bcd59d96c813d))
+
 ## [0.7.0](https://github.com/schie/fluent-zpl/compare/v0.6.0...v0.7.0) (2025-11-25)
 
 
