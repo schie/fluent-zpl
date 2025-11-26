@@ -118,6 +118,24 @@ export enum MediaTracking {
 }
 
 /**
+ * Printer configuration save/load actions for the ^JU command.
+ *
+ * @remarks
+ * - S: Save the current settings
+ * - R: Reload the last saved settings
+ * - F: Reload factory defaults
+ * - N: Reload factory network defaults
+ *
+ * There is no default; the caller must supply an explicit action.
+ */
+export enum PrinterConfiguration {
+  Save = 'S',
+  ReloadSaved = 'R',
+  ReloadFactory = 'F',
+  ReloadFactoryNetwork = 'N',
+}
+
+/**
  * Options for building printer configuration blocks outside of label formats.
  */
 export interface PrinterConfigOpts {
@@ -135,6 +153,8 @@ export interface PrinterConfigOpts {
   backfeedSpeed?: number;
   /** Darkness setting (^MD) */
   darkness?: number;
+  /** Printer configuration save/load action (^JU) */
+  configuration?: PrinterConfiguration;
   /** Label home offset (^LH) */
   labelHome?: Position;
   /** Pass-through commands appended after the typed options. */

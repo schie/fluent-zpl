@@ -20,6 +20,7 @@ export {
   Justify,
   MediaTracking,
   Orientation,
+  PrinterConfiguration,
   PrinterMode,
   QRErrorCorrection,
   RFIDBank,

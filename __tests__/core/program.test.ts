@@ -2,7 +2,12 @@
 
 import { Label } from '../../src/core/label.js';
 import { ZPLProgram } from '../../src/core/program.js';
-import { MediaTracking, PrinterMode, RFIDBank } from '../../src/_types.js';
+import {
+  MediaTracking,
+  PrinterConfiguration,
+  PrinterMode,
+  RFIDBank,
+} from '../../src/_types.js';
 
 describe('ZPLProgram', () => {
   test('printerConfig builds typed setup block', () => {
@@ -14,8 +19,8 @@ describe('ZPLProgram', () => {
         printSpeed: 4,
         darkness: 10,
         labelHome: { x: 0, y: 0 },
-      })
-      .raw('^JUS');
+        configuration: PrinterConfiguration.Save,
+      });
 
     expect(program.toZPL()).toBe('^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS');
   });
@@ -65,10 +70,10 @@ describe('ZPLProgram', () => {
 
   test('printerConfig additionalCommands are trimmed and filtered', () => {
     const zpl = ZPLProgram.create()
-      .printerConfig({ additionalCommands: ['^JUS', '   ', '  ^IDR:LOGO.GRF  '] })
+      .printerConfig({ additionalCommands: ['^HH', '   ', '  ^IDR:LOGO.GRF  '] })
       .toZPL();
 
-    expect(zpl).toBe('^JUS^IDR:LOGO.GRF');
+    expect(zpl).toBe('^HH^IDR:LOGO.GRF');
   });
 
   test('raw() ignores empty payloads without cloning', () => {

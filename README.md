@@ -76,6 +76,7 @@ import {
   ZPLProgram,
   PrinterMode,
   MediaTracking,
+  PrinterConfiguration,
   Label,
   FontFamily,
   Barcode,
@@ -90,7 +91,7 @@ const program = ZPLProgram.create()
     printSpeed: 4,
     darkness: 10,
     labelHome: { x: 0, y: 0 },
-    additionalCommands: ['^JUS'], // passthrough for commands we don't model yet
+    configuration: PrinterConfiguration.Save,
   })
   .label(
     (label) =>
@@ -651,7 +652,7 @@ const zpl = label.toZPL();
   - `ZPLProgram.create(opts)` - Start a new program (sets DPI/units context)
   - `.raw(zpl)` - Append arbitrary commands (diagnostics, downloads, etc.)
   - `.comment(text)` - Insert ^FX comments between sections
-  - `.printerConfig(opts)` - Emit typed ^MM/^MN/^PW/^PR/^MD/^LH blocks
+  - `.printerConfig(opts)` - Emit typed ^MM/^MN/^PW/^PR/^MD/^JU/^LH blocks
   - `.label(labelOrFactory, options?)` - Append a fluent `Label` (^XA…^XZ)
   - `.rfid(opts)` / `.rfidRead(opts)` - Emit RFID commands outside labels
   - `.toZPL()` - Serialize the final job payload

@@ -122,6 +122,8 @@ const buildPrinterConfigTokens = (
     commands.push(`^LH${x},${y}`);
   }
 
+  if (opts.configuration) commands.push(`^JU${opts.configuration}`);
+
   if (opts.additionalCommands?.length) {
     for (const cmd of opts.additionalCommands) {
       if (cmd && cmd.trim().length) commands.push(cmd.trim());
