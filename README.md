@@ -135,8 +135,8 @@ const config = PrinterConfig.create()
   .save(); // ^JUS
 
 const zpl = ZPLProgram.create().printerConfig(config.build()).toZPL();
-// => ^MMT^MNY^PW900^PR4^MD10^LH0,0^JUS
-// Or send config.toZPL() directly if you only need the setup block
+// => ^XA^MMT^MNY^PW900^PR4^MD10^LH0,0^JUS^XZ
+// Or send config.toZPL() directly if you only need the setup block (it wraps ^XA/^XZ for you)
 ```
 
 `ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, `^LH`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution—every downstream helper (including `.label(...)`) inherits those settings. A single program can now cover:

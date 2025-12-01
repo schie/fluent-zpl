@@ -13,7 +13,7 @@ import { Units } from '../_types.js';
 import { emit } from './emit.js';
 import { Label } from './label.js';
 import { tokenizeZPL } from './parse.js';
-import { buildPrinterConfigTokens } from './printer-config.js';
+import { buildPrinterConfigTokens, wrapPrinterConfigTokensInFormat } from './printer-config.js';
 import { buildRFIDReadTokens, buildRFIDWriteTokens } from './rfid.js';
 
 export interface ProgramOptions {
@@ -55,7 +55,7 @@ export class ZPLProgram {
 
   /** Typed helpers for common printer/media configuration commands */
   printerConfig(opts: PrinterConfigOpts): ZPLProgram {
-    const tokens = buildPrinterConfigTokens(this.cfg, opts);
+    const tokens = wrapPrinterConfigTokensInFormat(buildPrinterConfigTokens(this.cfg, opts));
     if (!tokens.length) return this;
     return this.append(tokens);
   }

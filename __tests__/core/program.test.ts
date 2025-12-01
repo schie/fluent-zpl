@@ -22,7 +22,7 @@ describe('ZPLProgram', () => {
         configuration: PrinterConfiguration.Save,
       });
 
-    expect(program.toZPL()).toBe('^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS');
+    expect(program.toZPL()).toBe('^XA^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS^XZ');
   });
 
   test('label() factory composes label formats', () => {
@@ -73,7 +73,7 @@ describe('ZPLProgram', () => {
       .printerConfig({ additionalCommands: ['^HH', '   ', '  ^IDR:LOGO.GRF  '] })
       .toZPL();
 
-    expect(zpl).toBe('^HH^IDR:LOGO.GRF');
+    expect(zpl).toBe('^XA^HH^IDR:LOGO.GRF^XZ');
   });
 
   test('raw() ignores empty payloads without cloning', () => {

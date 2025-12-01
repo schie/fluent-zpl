@@ -1,7 +1,14 @@
 // src/core/printer-config.ts
 // Fluent builder for printer configuration (shared with ZPLProgram)
 
-import type { DPI, MediaTracking, Position, PrinterConfigOpts, PrinterMode } from '../_types.js';
+import type {
+  DPI,
+  MediaTracking,
+  Position,
+  PrinterConfigOpts,
+  PrinterMode,
+  Token,
+} from '../_types.js';
 import { PrinterConfiguration, Units } from '../_types.js';
 import { toDots } from '../_unit-helpers.js';
 import { emit } from './emit.js';
@@ -49,6 +56,18 @@ export const buildPrinterConfigTokens = (
   if (opts.configuration) commands.push(`^JU${opts.configuration}`);
 
   return commands.length ? tokenizeZPL(commands.join('')) : [];
+};
+
+export const wrapPrinterConfigTokensInFormat = (tokens: Token[]): Token[] => {
+  if (!tokens.length) return tokens;
+
+  const first = tokens[0];
+  const last = tokens[tokens.length - 1];
+  const alreadyWrapped =
+    first.k === 'Cmd' && first.name === 'XA' && last.k === 'Cmd' && last.name === 'XZ';
+  if (alreadyWrapped) return tokens;
+
+  return tokenizeZPL(`^XA${emit(tokens)}^XZ`);
 };
 
 /** Optional context for converting measurements when building printer config */
@@ -176,7 +195,8 @@ export class PrinterConfig {
 
   /** Emit the current configuration block as ZPL. */
   toZPL(): string {
-    return emit(buildPrinterConfigTokens(this.cfg, this.opts));
+    const tokens = wrapPrinterConfigTokensInFormat(buildPrinterConfigTokens(this.cfg, this.opts));
+    return emit(tokens);
   }
 
   private with(next: Partial<PrinterConfigOpts>): PrinterConfig {

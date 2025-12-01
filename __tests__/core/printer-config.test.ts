@@ -17,7 +17,7 @@ describe('PrinterConfig builder', () => {
       .save()
       .toZPL();
 
-    expect(zpl).toBe('^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS');
+    expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS^XZ');
   });
 
   test('build() feeds ZPLProgram.printerConfig()', () => {
@@ -28,7 +28,7 @@ describe('PrinterConfig builder', () => {
       .configuration(PrinterConfiguration.ReloadSaved);
 
     const zpl = ZPLProgram.create().printerConfig(builder.build()).toZPL();
-    expect(zpl).toBe('^MMA^MNZ^PR3^JUR');
+    expect(zpl).toBe('^XA^MMA^MNZ^PR3^JUR^XZ');
   });
 
   test('covers speeds, unit conversion, additional commands, and reload helpers', () => {
@@ -43,20 +43,20 @@ describe('PrinterConfig builder', () => {
       .reloadFactoryNetwork()
       .toZPL();
 
-    expect(zpl).toBe('^PW900^PR10,5,2^IDR:LOGO.GRF^HH^XZ^JUN');
+    expect(zpl).toBe('^XA^PW900^PR10,5,2^IDR:LOGO.GRF^HH^XZ^JUN^XZ');
 
     const reloadSaved = PrinterConfig.create().reloadSaved().toZPL();
     const reloadFactory = PrinterConfig.create().reloadFactory().toZPL();
 
-    expect(reloadSaved).toBe('^JUR');
-    expect(reloadFactory).toBe('^JUF');
+    expect(reloadSaved).toBe('^XA^JUR^XZ');
+    expect(reloadFactory).toBe('^XA^JUF^XZ');
   });
 
   test('labelHomeOrigin sets ^LH0,0 and preserves immutability', () => {
     const base = PrinterConfig.create();
     const withOrigin = base.labelHomeOrigin();
     expect(base.toZPL()).toBe('');
-    expect(withOrigin.toZPL()).toBe('^LH0,0');
+    expect(withOrigin.toZPL()).toBe('^XA^LH0,0^XZ');
   });
 
   test('additionalCommands merges and dedupes across calls', () => {
@@ -64,7 +64,7 @@ describe('PrinterConfig builder', () => {
       .additionalCommands([' ^XA ', ' ^XZ '])
       .additionalCommands(['^XZ', ' ', '^XA', '^HH']);
 
-    expect(config.toZPL()).toBe('^XA^XZ^HH');
+    expect(config.toZPL()).toBe('^XA^XA^XZ^HH^XZ');
   });
 
   test('raw ignores empty strings and trims input', () => {
@@ -73,7 +73,7 @@ describe('PrinterConfig builder', () => {
     const updated = base.raw('  ^HH ');
 
     expect(same).toBe(base);
-    expect(updated.toZPL()).toBe('^HH');
+    expect(updated.toZPL()).toBe('^XA^HH^XZ');
   });
 
   test('additionalCommands ignores empty payloads without cloning', () => {
@@ -82,23 +82,28 @@ describe('PrinterConfig builder', () => {
     expect(same).toBe(base);
   });
 
+  test('toZPL does not double-wrap when commands are pre-wrapped', () => {
+    const prewrapped = PrinterConfig.create().additionalCommands(['^XA^PR5^XZ']);
+    expect(prewrapped.toZPL()).toBe('^XA^PR5^XZ');
+  });
+
   test('immutability is preserved when chaining', () => {
     const base = PrinterConfig.create().printSpeed(5);
     const tweaked = base.darkness(15);
 
-    expect(base.toZPL()).toBe('^PR5');
-    expect(tweaked.toZPL()).toBe('^PR5^MD15');
+    expect(base.toZPL()).toBe('^XA^PR5^XZ');
+    expect(tweaked.toZPL()).toBe('^XA^PR5^MD15^XZ');
   });
   test('labelHomeOrigin sets label home to origin (0,0)', () => {
     const zpl = PrinterConfig.create().labelHomeOrigin().toZPL();
 
-    expect(zpl).toBe('^LH0,0');
+    expect(zpl).toBe('^XA^LH0,0^XZ');
   });
 
   test('labelHomeOrigin overwrites existing labelHome position', () => {
     const zpl = PrinterConfig.create().labelHome({ x: 100, y: 200 }).labelHomeOrigin().toZPL();
 
-    expect(zpl).toBe('^LH0,0');
+    expect(zpl).toBe('^XA^LH0,0^XZ');
   });
 
   test('labelHomeOrigin works with unit conversion', () => {
@@ -107,14 +112,14 @@ describe('PrinterConfig builder', () => {
       .labelHomeOrigin()
       .toZPL();
 
-    expect(zpl).toBe('^LH0,0');
+    expect(zpl).toBe('^XA^LH0,0^XZ');
   });
 
   test('labelHomeOrigin preserves immutability', () => {
     const base = PrinterConfig.create().labelHome({ x: 50, y: 75 });
     const origin = base.labelHomeOrigin();
 
-    expect(base.toZPL()).toBe('^LH50,75');
-    expect(origin.toZPL()).toBe('^LH0,0');
+    expect(base.toZPL()).toBe('^XA^LH50,75^XZ');
+    expect(origin.toZPL()).toBe('^XA^LH0,0^XZ');
   });
 });
