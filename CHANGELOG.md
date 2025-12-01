@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/schie/fluent-zpl/compare/v0.9.0...v0.9.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* wrapping printer-config jazz with `^XA/^XZ` block ([ce24e0f](https://github.com/schie/fluent-zpl/commit/ce24e0f493d190b0a6f2f3592a01cf2b0573e38d))
+
 ## [0.9.0](https://github.com/schie/fluent-zpl/compare/v0.8.0...v0.9.0) (2025-11-26)
 
 
