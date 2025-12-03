@@ -27,6 +27,7 @@ A modern, type-safe TypeScript library for generating **ZPL (Zebra Programming L
 - 🖼️ **Image Support** - Convert RGBA images to ZPL bitmaps
 - 📡 **RFID/EPC Support** - Encode and read RFID tags with EPC data
 - 🏗️ **Program Builder** - Compose printer setup, diagnostics, labels, and RFID commands into one payload
+- ✂️ **Tear-Off Calibration** - Adjust `~TA` with unit conversion and clamping
 - 📦 **Zero Dependencies** - Lightweight and fast
 
 ## 🚀 Quick Start
@@ -91,6 +92,7 @@ const program = ZPLProgram.create()
     printWidth: 801,
     printSpeed: 4,
     darkness: 10,
+    tearOff: -12,
     labelHome: { x: 0, y: 0 },
     configuration: PrinterConfiguration.Save,
   })
@@ -122,6 +124,8 @@ const payload = program
 console.log(payload);
 ```
 
+Use `tearOff` when you need to fine-tune the liner break point: pass dots, millimeters, or inches and the builder will convert to dots using the current DPI/units context, rounding and clamping to ±120 before emitting `~TA`.
+
 Or use the fluent printer config builder when you want to compose setup steps:
 
 ```typescript
@@ -131,15 +135,16 @@ const config = PrinterConfig.create()
   .printWidth(inch(3, 300))
   .printSpeed(4)
   .darkness(10)
+  .tearOff(25)
   .labelHome({ x: 0, y: 0 })
   .save(); // ^JUS
 
 const zpl = ZPLProgram.create().printerConfig(config.build()).toZPL();
-// => ^XA^MMT^MNY^PW900^PR4^MD10^LH0,0^JUS^XZ
+// => ^XA^MMT^MNY^PW900^PR4^MD10~TA25^LH0,0^JUS^XZ
 // Or send config.toZPL() directly if you only need the setup block (it wraps ^XA/^XZ for you)
 ```
 
-`ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, `^LH`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution—every downstream helper (including `.label(...)`) inherits those settings. A single program can now cover:
+`ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, `^LH`, `~TA`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution—every downstream helper (including `.label(...)`) inherits those settings. A single program can now cover:
 
 - Label formats and layout (`.label(...)`)
 - Printer/media configuration (`.printerConfig(...)`)
@@ -670,7 +675,7 @@ const zpl = label.toZPL();
   - `ZPLProgram.create(opts)` - Start a new program (sets DPI/units context)
   - `.raw(zpl)` - Append arbitrary commands (diagnostics, downloads, etc.)
   - `.comment(text)` - Insert ^FX comments between sections
-  - `.printerConfig(opts)` - Emit typed ^MM/^MN/^PW/^PR/^MD/^JU/^LH blocks
+  - `.printerConfig(opts)` - Emit typed ^MM/^MN/^PW/^PR/^MD/~TA/^JU/^LH blocks
   - `.label(labelOrFactory, options?)` - Append a fluent `Label` (^XA…^XZ)
   - `.rfid(opts)` / `.rfidRead(opts)` - Emit RFID commands outside labels
   - `.toZPL()` - Serialize the final job payload

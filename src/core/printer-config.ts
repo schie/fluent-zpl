@@ -41,6 +41,11 @@ export const buildPrinterConfigTokens = (
 
   if (opts.darkness != null) commands.push(`^MD${clamp(opts.darkness, -30, 30)}`);
 
+  if (opts.tearOff != null) {
+    const dots = toDots(opts.tearOff, cfg.dpi, cfg.units);
+    commands.push(`~TA${clamp(dots, -120, 120)}`);
+  }
+
   if (opts.labelHome) {
     const x = toDots(opts.labelHome.x, cfg.dpi, cfg.units);
     const y = toDots(opts.labelHome.y, cfg.dpi, cfg.units);
@@ -129,6 +134,11 @@ export class PrinterConfig {
   /** Set darkness (^MD). */
   darkness(darkness: number): PrinterConfig {
     return this.with({ darkness });
+  }
+
+  /** Set tear-off adjustment (~TA). Provide dots or preconverted values; rounded and clamped between -120 and 120. */
+  tearOff(tearOff: number): PrinterConfig {
+    return this.with({ tearOff });
   }
 
   /** Set label home (^LH). Provide dots or preconverted values. */

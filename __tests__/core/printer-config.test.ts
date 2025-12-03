@@ -13,11 +13,12 @@ describe('PrinterConfig builder', () => {
       .printWidth(801)
       .printSpeed(4)
       .darkness(10)
+      .tearOff(25)
       .labelHome({ x: 0, y: 0 })
       .save()
       .toZPL();
 
-    expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS^XZ');
+    expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4^MD10~TA25^LH0,0^JUS^XZ');
   });
 
   test('build() feeds ZPLProgram.printerConfig()', () => {
@@ -121,5 +122,16 @@ describe('PrinterConfig builder', () => {
 
     expect(base.toZPL()).toBe('^XA^LH50,75^XZ');
     expect(origin.toZPL()).toBe('^XA^LH0,0^XZ');
+  });
+
+  test('supports tear-off adjustment with unit conversion and clamping', () => {
+    const converted = PrinterConfig.create({ units: Units.Inch, dpi: 203 }).tearOff(1).toZPL();
+    expect(converted).toBe('^XA~TA120^XZ');
+
+    const clampedHigh = PrinterConfig.create().tearOff(5000).toZPL();
+    const clampedLow = PrinterConfig.create().tearOff(-5000).toZPL();
+
+    expect(clampedHigh).toBe('^XA~TA120^XZ');
+    expect(clampedLow).toBe('^XA~TA-120^XZ');
   });
 });

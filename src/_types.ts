@@ -153,6 +153,8 @@ export interface PrinterConfigOpts {
   backfeedSpeed?: number;
   /** Darkness setting (^MD) */
   darkness?: number;
+  /** Tear-off adjustment (~TA). Uses the current unit context, rounded and clamped between -120 and 120. */
+  tearOff?: number;
   /** Printer configuration save/load action (^JU) */
   configuration?: PrinterConfiguration;
   /** Label home offset (^LH) */
