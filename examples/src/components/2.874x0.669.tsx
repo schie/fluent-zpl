@@ -1,5 +1,5 @@
 // import './App.css'
-import { Barcode, FontFamily, Justify, Label } from '@schie/fluent-zpl';
+import { Barcode, DitherMode, FontFamily, Justify, Label } from '@schie/fluent-zpl';
 import { Jimp } from 'jimp';
 import { useEffect, useState, type FC } from 'react';
 import rfidImage from './rfid.png';
@@ -88,7 +88,7 @@ export const Label2874x0669: FC<Props> = (props) => {
           rgba: img.bitmap.data,
           width: img.bitmap.width,
           height: img.bitmap.height,
-          mode: 'threshold',
+          mode: DitherMode.Threshold,
           threshold: 128,
           invert: false,
         });

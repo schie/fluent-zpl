@@ -34,8 +34,21 @@ function App() {
   };
 
   return (
-    <div className="p-10">
-      <div className="grid grid-cols-4 gap-4">
+    <div className="p-10 space-y-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-base-200 px-5 py-4 shadow-sm">
+        <div>
+          <p className="text-sm uppercase tracking-wide text-secondary">Fluent ZPL Examples</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <a className="btn btn-outline btn-sm" href="../">
+            API Docs
+          </a>
+          <a className="btn btn-primary btn-sm" href="https://github.com/schie/fluent-zpl">
+            GitHub
+          </a>
+        </div>
+      </header>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Label175x075 onDetailClick={onLabelDetailClick} />
         <Label300x100 onDetailClick={onLabelDetailClick} />
         <Label300x55 onDetailClick={onLabelDetailClick} />

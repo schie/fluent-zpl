@@ -9,6 +9,7 @@
   "favicon": "schie.ico",
   "navigationLinks": {
     "GitHub": "https://github.com/schie/fluent-zpl",
-    "npm": "https://www.npmjs.com/package/@schie/fluent-zpl"
+    "npm": "https://www.npmjs.com/package/@schie/fluent-zpl",
+    "examples": "./examples/"
   }
 }

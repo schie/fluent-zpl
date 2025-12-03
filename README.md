@@ -699,6 +699,12 @@ const zpl = label.toZPL();
 - **Node.js**: Requires Node.js 20+
 - **Size**: ~15KB minified
 
+## 🌐 Docs & Examples
+
+- **Live site**: https://schie.github.io/fluent-zpl/ (API docs) and https://schie.github.io/fluent-zpl/examples/ (interactive labels)
+- **Cross-links**: Typedoc navigation includes an Examples link; the playground header links back to the docs
+- **Local build**: `npm ci --prefix examples` once, then `npm run docs:pages` to emit Typedoc HTML plus the Vite app to `docs/examples/` for GitHub Pages
+
 ## 🤝 Contributing
 
 Contributions are welcome! This project uses:

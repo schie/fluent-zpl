@@ -45,6 +45,7 @@
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
     "docs": "typedoc",
+    "docs:pages": "npm run docs && npm run examples:install && npm run examples:build && rm -rf docs/examples && cp -R examples/dist docs/examples",
     "docs:serve": "npx http-server docs",
     "examples:install": "cd examples && npm install",
     "examples:dev": "cd examples && npm run dev",
