@@ -80,7 +80,13 @@ export class Label {
   // Core building blocks (primitive fluent methods)
   // ---------------------------------------------------------------------------
 
-  /** Add a text field */
+  /**
+   * Add a text field.
+   *
+   * @remarks
+   * Font height/width are rounded to integers with a minimum of 1. Wrap spacing and hanging indent
+   * are rounded to integers with a minimum of 0.
+   */
   text(o: TextOpts): Label {
     const { dpi, units } = this.cfg;
 
@@ -163,7 +169,13 @@ export class Label {
     return this._insertBeforeXZ(tokenizeZPL(chunk));
   }
 
-  /** Draw a box/line */
+  /**
+   * Draw a box/line.
+   *
+   * @remarks
+   * Border thickness is rounded to an integer with a minimum of 1. Corner radius is rounded and
+   * clamped between 0 and 8 to match ZPL limits.
+   */
   box(o: BoxOpts): Label {
     const { dpi, units } = this.cfg;
     const x = toDots(o.at.x, dpi, units);
@@ -182,7 +194,7 @@ export class Label {
   // DX sugar (former "components" as fluent methods)
   // ---------------------------------------------------------------------------
 
-  /** Caption text with symmetric h/w and optional wrap width */
+  /** Caption text with symmetric h/w and optional wrap width (size rounded to min 1) */
   caption(o: CaptionOpts): Label {
     const { dpi, units } = this.cfg;
     const size = clamp1(o.size ?? 24);
@@ -229,7 +241,7 @@ export class Label {
     });
   }
 
-  /** Multiline text block for addresses/blocks */
+  /** Multiline text block for addresses/blocks (size and lineHeight rounded to min 1) */
   addressBlock(o: AddressBlockOpts): Label {
     const lh = clamp1(o.lineHeight ?? 24);
     const size = clamp1(o.size ?? 24);
@@ -380,7 +392,7 @@ export class Label {
     return result;
   }
 
-  /** Set global default font (^CF) - affects all subsequent text fields that don't specify a font */
+  /** Set global default font (^CF) - height/width rounded to ints with a minimum of 1. */
   setDefaultFont(opts: { family?: FontFamily; height?: number; width?: number }): Label {
     const family = opts.family ?? FontFamily.Zero;
     const height = clamp1(opts.height ?? 28);
@@ -390,7 +402,12 @@ export class Label {
     return this._insertBeforeXZ(tokenizeZPL(chunk));
   }
 
-  /** Set global barcode module settings (^BY) - affects all subsequent barcodes */
+  /**
+   * Set global barcode module settings (^BY) - affects all subsequent barcodes.
+   *
+   * @remarks
+   * Module width, ratio, and height are rounded to integers with a minimum of 1 when provided.
+   */
   setBarcodeDefaults(opts: {
     moduleWidth?: number;
     wideToNarrowRatio?: number;

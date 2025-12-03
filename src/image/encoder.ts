@@ -260,6 +260,7 @@ function normalizeGrfName(name: string): string {
   return n.toUpperCase();
 }
 
+/** Clamp to the 0-255 byte range (floored to an integer). */
 export const clamp255 = (n: number) => (n < 0 ? 0 : n > 255 ? 255 : n | 0);
 
 /* =========================

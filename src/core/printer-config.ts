@@ -116,22 +116,22 @@ export class PrinterConfig {
     return this.with({ printWidth });
   }
 
-  /** Set print speed component (^PR). */
+  /** Set print speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
   printSpeed(printSpeed: number): PrinterConfig {
     return this.with({ printSpeed });
   }
 
-  /** Set slew speed component (^PR). */
+  /** Set slew speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
   slewSpeed(slewSpeed: number): PrinterConfig {
     return this.with({ slewSpeed });
   }
 
-  /** Set backfeed speed component (^PR). */
+  /** Set backfeed speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
   backfeedSpeed(backfeedSpeed: number): PrinterConfig {
     return this.with({ backfeedSpeed });
   }
 
-  /** Set darkness (^MD). */
+  /** Set darkness (^MD). Rounded to an integer and clamped between -30 and 30. */
   darkness(darkness: number): PrinterConfig {
     return this.with({ darkness });
   }

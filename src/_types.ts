@@ -145,13 +145,13 @@ export interface PrinterConfigOpts {
   mediaTracking?: MediaTracking;
   /** Print width (^PW). Uses the current unit context. */
   printWidth?: number;
-  /** Print speed component (^PR) */
+  /** Print speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
   printSpeed?: number;
-  /** Slew speed component (^PR) */
+  /** Slew speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
   slewSpeed?: number;
-  /** Backfeed speed component (^PR) */
+  /** Backfeed speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
   backfeedSpeed?: number;
-  /** Darkness setting (^MD) */
+  /** Darkness setting (^MD). Rounded to an integer and clamped between -30 and 30. */
   darkness?: number;
   /** Tear-off adjustment (~TA). Uses the current unit context, rounded and clamped between -120 and 120. */
   tearOff?: number;
@@ -295,13 +295,21 @@ export enum RFIDBank {
 export interface TextOpts {
   at: Position;
   text: string;
-  font?: { family?: FontFamily; h?: number; w?: number };
+  font?: {
+    family?: FontFamily;
+    /** Font height in dots; rounded to an integer with a minimum of 1. */
+    h?: number;
+    /** Font width in dots; rounded to an integer with a minimum of 1 (defaults to height when omitted). */
+    w?: number;
+  };
   rotate?: Orientation;
   wrap?: {
     width: number;
     lines?: number;
+    /** Inter-line spacing in dots; rounded to an integer with a minimum of 0. */
     spacing?: number;
     justify?: Justify;
+    /** Hanging indent in dots; rounded to an integer with a minimum of 0. */
     hangingIndent?: number;
   };
 }
@@ -357,9 +365,11 @@ export interface BarcodeOpts {
 export interface BoxOpts {
   at: Position;
   size: { w: number; h: number };
+  /** Border thickness in dots; rounded to an integer with a minimum of 1. */
   border?: number;
   fill?: Fill;
   reverse?: boolean;
+  /** Corner rounding in dots; rounded to an integer and clamped between 0 and 8. */
   cornerRadius?: number;
 }
 
@@ -404,6 +414,7 @@ export interface RFIDOpts {
 export interface CaptionOpts {
   at: Position;
   text: string;
+  /** Font size in dots; rounded to an integer with a minimum of 1. */
   size?: number; // dots
   family?: FontFamily;
   rotate?: Orientation;
@@ -487,7 +498,9 @@ export interface GS1_128Opts {
 export interface AddressBlockOpts {
   at: Position;
   lines: Array<string | undefined | null>;
+  /** Line spacing in dots; rounded to an integer with a minimum of 1. */
   lineHeight?: number; // dots between lines
+  /** Font size in dots; rounded to an integer with a minimum of 1. */
   size?: number; // font size in dots
   family?: FontFamily;
   rotate?: Orientation;
