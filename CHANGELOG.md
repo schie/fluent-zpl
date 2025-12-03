@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/schie/fluent-zpl/compare/v0.9.1...v0.10.0) (2025-12-03)
+
+
+### Features
+
+* **printer-config:** adding tearOff ([b1ea3c3](https://github.com/schie/fluent-zpl/commit/b1ea3c330c7f04f64c9d5cd23ec7ceb733a35897))
+
 ## [0.9.1](https://github.com/schie/fluent-zpl/compare/v0.9.0...v0.9.1) (2025-12-01)
 
 
