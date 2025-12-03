@@ -1,5 +1,6 @@
 // src/index.ts
 // Public API for @schie/fluent-zpl
+/* eslint-disable camelcase -- exposed GS1 type retains spec naming */
 
 // Core API
 export { Label } from './core/label.js';

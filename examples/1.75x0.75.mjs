@@ -51,7 +51,6 @@ async function createLabelWithImage() {
     image.resize({ w: 100, h: 100 }); // Adjust size as needed
 
     const epcImage = await convertImage('./epc.jpeg');
-    const rfidImage = await convertImage('./rfid.png');
     const label = Label.create({ w, h })
       .barcode({
         at: { x: 20, y: 20 },
@@ -59,15 +58,15 @@ async function createLabelWithImage() {
         type: Barcode.Code128,
         data: barcode,
       })
-      // .imageInline({
-      //   at: { x: 410, y: 20 },
-      //   rgba: epcImage.rgba,
-      //   width: epcImage.width,
-      //   height: epcImage.height,
-      //   mode: 'threshold', // or 'floyd-steinberg' or 'ordered'
-      //   threshold: 128, // 0-255, controls black/white threshold
-      //   invert: false // set to true if image appears inverted
-      // })
+      .imageInline({
+        at: { x: 410, y: 20 },
+        rgba: epcImage.rgba,
+        width: epcImage.width,
+        height: epcImage.height,
+        mode: 'threshold', // or 'floyd-steinberg' or 'ordered'
+        threshold: 128, // 0-255, controls black/white threshold
+        invert: false, // set to true if image appears inverted
+      })
       // .box({
       //   at: { x: 0, y: 0 },
       //   size: {
@@ -75,15 +74,6 @@ async function createLabelWithImage() {
       //     h
       //   },
       //   border: 2
-      // })
-      // .imageInline({
-      //   at: { x: 410, y: 120 },
-      //   rgba: rfidImage.rgba,
-      //   width: rfidImage.width,
-      //   height: rfidImage.height,
-      //   mode: 'threshold', // or 'floyd-steinberg' or 'ordered'
-      //   threshold: 128, // 0-255, controls black/white threshold
-      //   invert: false // set to true if image appears inverted
       // })
       .caption({
         at: { x: 20, y: 100 },

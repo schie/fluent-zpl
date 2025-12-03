@@ -1,5 +1,6 @@
 // src/core/label.ts
 // @schie/fluent-zpl – Label class (fluent, immutable)
+/* eslint-disable camelcase -- GS1 naming uses underscores per spec */
 
 import type {
   AddressBlockOpts,
@@ -148,7 +149,7 @@ export class Label {
       case 'PDF417':
         spec = `^B7${r},${m},${m},3,N,N,N`;
         break;
-      case 'QRCode':
+      case 'QRCode': {
         // ^BQ orientation,model,magnification,errorCorrection,mask
         // orientation: N only (backward compatibility)
         // model: 1 (original) or 2 (enhanced, default)
@@ -160,6 +161,7 @@ export class Label {
         const mask = o.qrMask ?? 7; // Default mask pattern
         spec = `^BQN,${model},${m},${errorCorrection},${mask}`;
         break;
+      }
       case 'DataMatrix':
         spec = `^BX${r},${m},200`;
         break;
