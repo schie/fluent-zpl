@@ -123,7 +123,8 @@ export class Label {
       parts.push(`^FB${width},${lines},${spacing},${just},${hangingIndent}`);
     }
 
-    parts.push(`^FD${Label.escFD(o.text)}^FS`);
+    const hexIndicator = Label.buildHexIndicator(o.hexIndicator);
+    parts.push(`${hexIndicator}^FD${Label.escFD(o.text)}^FS`);
 
     return this._insertBeforeXZ(tokenizeZPL(parts.join('')));
   }
@@ -179,7 +180,8 @@ export class Label {
         break;
     }
 
-    const chunk = `^FO${x},${y}${byCmd}${spec}^FD${Label.escFD(o.data)}^FS`;
+    const hexIndicator = Label.buildHexIndicator(o.hexIndicator);
+    const chunk = `^FO${x},${y}${byCmd}${spec}${hexIndicator}^FD${Label.escFD(o.data)}^FS`;
     return this._insertBeforeXZ(tokenizeZPL(chunk));
   }
 
@@ -357,6 +359,32 @@ export class Label {
   /** Escape carets inside ^FD payloads per ZPL rules */
   private static escFD(s: string): string {
     return String(s).replace(/\^/g, '^^');
+  }
+
+  /** Build optional ^FH hex indicator prefix */
+  private static buildHexIndicator(hexIndicator?: string): string {
+    if (hexIndicator == null) return '';
+    const indicator = String(hexIndicator);
+    if (indicator.length === 0) return '^FH';
+
+    if (indicator.length !== 1 || indicator.charCodeAt(0) > 127) {
+      throw new Error('hexIndicator must be a single ASCII character.');
+    }
+
+    if (/^[a-z]$/.test(indicator)) {
+      throw new Error('hexIndicator cannot be a lowercase letter (a-z).');
+    }
+
+    if (/[\^~,]/.test(indicator)) {
+      throw new Error('hexIndicator cannot be a ZPL command or parameter delimiter (^, ~, ,).');
+    }
+
+    const code = indicator.charCodeAt(0);
+    if (code < 32) {
+      throw new Error('hexIndicator must be a printable ASCII character.');
+    }
+
+    return `^FH${indicator}`;
   }
 
   /** Minimal GS1 helper: inserts GS between variable-length AIs */

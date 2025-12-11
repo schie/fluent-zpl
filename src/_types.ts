@@ -373,6 +373,8 @@ export enum RFIDBank {
 export interface TextOpts {
   at: Position;
   text: string;
+  /** Optional ^FH hex indicator for embedding hex escapes inside the field data. */
+  hexIndicator?: string;
   font?: {
     family?: FontFamily;
     /** Font height in dots; rounded to an integer with a minimum of 1. */
@@ -414,6 +416,8 @@ export interface BarcodeOpts {
   at: Position;
   type: Barcode;
   data: string;
+  /** Optional ^FH hex indicator for embedding hex escapes inside the field data. */
+  hexIndicator?: string;
   height?: number;
   module?: number;
   ratio?: number; // Module width ratio for ^BY command
