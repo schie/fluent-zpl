@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.11.0](https://github.com/schie/fluent-zpl/compare/v0.10.0...v0.11.0) (2025-12-11)
+
+
+### Features
+
+* **label:** adding `.circle()` ([7ea9103](https://github.com/schie/fluent-zpl/commit/7ea9103356e973feee7dbfe20432e6a246258df5))
+* **label:** adding `.diagonalLine()` ([2aac1ca](https://github.com/schie/fluent-zpl/commit/2aac1ca78e7453eb94773f2507fe5b38eaa52caf))
+* **label:** adding `.ellipse()` ([ab6a99d](https://github.com/schie/fluent-zpl/commit/ab6a99d19afc43cdbebadb76216aaea76be2f43c))
+* **label:** adding `.setCharacterSet(...)` ([4ff5524](https://github.com/schie/fluent-zpl/commit/4ff55240bd4e41d8c6e844e8f901191a0b11fee6))
+* **label:** adding hex indicator ([5f3bfe0](https://github.com/schie/fluent-zpl/commit/5f3bfe0396bf4abc9c23bc5c99f5df5444cd26be))
+* **label:** expanding functionality of `.barcode()` ([8f81a33](https://github.com/schie/fluent-zpl/commit/8f81a33073bf5c5fbc68b762809cf75862a372f0))
+* **printerconfig:** adding `.mirror()` and `.orientation()` ([918dafe](https://github.com/schie/fluent-zpl/commit/918dafef59ef92c477462d02ffa14b72a56a7cd8))
+
 ## [0.10.0](https://github.com/schie/fluent-zpl/compare/v0.9.1...v0.10.0) (2025-12-03)
 
 
