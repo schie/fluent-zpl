@@ -30,6 +30,7 @@ export {
   RFIDBank,
   Units,
   DiagonalOrientation,
+  Code128Mode,
 } from './_types.js';
 
 // Essential types for public API
