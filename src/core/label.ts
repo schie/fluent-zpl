@@ -6,6 +6,7 @@ import type {
   AddressBlockOpts,
   BarcodeOpts,
   BoxOpts,
+  CircleOpts,
   CaptionOpts,
   CharacterSetOptions,
   DPI,
@@ -203,6 +204,24 @@ export class Label {
     const radius = Math.max(0, Math.min(8, Math.round(o.cornerRadius ?? 0))); // ZPL supports 0-8
     const reverse = o.reverse ? '^FR' : '';
     const chunk = `^FO${x},${y}${reverse}^GB${w},${h},${t},${fill},${radius}^FS`;
+    return this._insertBeforeXZ(tokenizeZPL(chunk));
+  }
+
+  /**
+   * Draw a circle.
+   *
+   * @remarks
+   * Border thickness is rounded to an integer with a minimum of 1.
+   */
+  circle(o: CircleOpts): Label {
+    const { dpi, units } = this.cfg;
+    const x = toDots(o.at.x, dpi, units);
+    const y = toDots(o.at.y, dpi, units);
+    const diameter = toDots(o.diameter, dpi, units);
+    const thickness = clamp1(o.thickness ?? 1);
+    const fill = o.fill ?? Fill.Black;
+    const reverse = o.reverse ? '^FR' : '';
+    const chunk = `^FO${x},${y}${reverse}^GC${diameter},${thickness},${fill}^FS`;
     return this._insertBeforeXZ(tokenizeZPL(chunk));
   }
 

@@ -456,6 +456,21 @@ export interface BoxOpts {
 }
 
 /**
+ * Options for graphic circles (^GC).
+ */
+export interface CircleOpts {
+  at: Position;
+  /** Diameter in current units; converted to dots. */
+  diameter: number;
+  /** Border thickness in dots; rounded to an integer with a minimum of 1. */
+  thickness?: number;
+  /** Fill color; black by default. */
+  fill?: Fill;
+  /** Apply field reverse (^FR) to invert colors. */
+  reverse?: boolean;
+}
+
+/**
  * Options for diagonal line graphics (^GD).
  */
 export interface DiagonalLineOpts {
