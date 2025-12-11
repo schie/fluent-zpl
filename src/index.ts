@@ -38,6 +38,8 @@ export type {
   BarcodeOpts,
   BoxOpts,
   CaptionOpts,
+  CharacterSet,
+  CharacterSetOptions,
   DiagonalLineOpts,
   DPI,
   EPCOpts,

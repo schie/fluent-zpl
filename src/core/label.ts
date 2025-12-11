@@ -7,6 +7,7 @@ import type {
   BarcodeOpts,
   BoxOpts,
   CaptionOpts,
+  CharacterSetOptions,
   DPI,
   DiagonalLineOpts,
   EPCOpts,
@@ -426,6 +427,29 @@ export class Label {
     return result;
   }
 
+  /**
+   * Set the active character set (^CI).
+   *
+   * @remarks
+   * Use charset 28 (UTF-8) when possible. Custom mappings are provided as pairs of integers for
+   * Code Page 850 variants (charset 0-13).
+   */
+  setCharacterSet(opts: CharacterSetOptions): Label {
+    const charset = clampRange(opts.charset, 0, 36);
+    const mappings = opts.customMappings;
+
+    if (mappings?.length) {
+      if (mappings.length % 2 !== 0) {
+        throw new Error('customMappings must be provided as pairs of integers.');
+      }
+      const values = mappings.map((value) => clampRange(value, 0, 255));
+      const chunk = `^CI${charset},${values.join(',')}`;
+      return this._insertBeforeXZ(tokenizeZPL(chunk));
+    }
+
+    return this._insertBeforeXZ(tokenizeZPL(`^CI${charset}`));
+  }
+
   /** Set global default font (^CF) - height/width rounded to ints with a minimum of 1. */
   setDefaultFont(opts: { family?: FontFamily; height?: number; width?: number }): Label {
     const family = opts.family ?? FontFamily.Zero;
@@ -457,5 +481,7 @@ export class Label {
 }
 
 /* local helpers */
+const clampRange = (n: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, Math.round(n)));
 const clamp1 = (n: number) => Math.max(1, Math.round(n));
 const clamp0 = (n: number) => Math.max(0, Math.round(n));
