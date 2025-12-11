@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/schie/fluent-zpl/compare/v0.11.0...v0.11.1) (2025-12-11)
+
+
+### Bug Fixes
+
+* **index:** exporting `Code128Mode` ([9612a36](https://github.com/schie/fluent-zpl/commit/9612a364f2da9935559845a353f198ffc0699df1))
+
 ## [0.11.0](https://github.com/schie/fluent-zpl/compare/v0.10.0...v0.11.0) (2025-12-11)
 
 
