@@ -23,6 +23,7 @@ import type {
 } from '../_types.js';
 import {
   Barcode,
+  Code128Mode,
   DiagonalOrientation,
   Fill,
   FontFamily,
@@ -139,30 +140,40 @@ export class Label {
     const m = o.module ?? 2;
     const ratio = o.ratio ?? 3; // Default 3:1 ratio for better scan reliability
     const h = o.height ?? 100;
-    const r = o.rotate ?? 'N';
+    const r: Orientation = o.rotate ?? Orientation.Normal;
+    const line = o.line ?? true;
+    const lineAboveDefault = o.type === Barcode.Code128 && o.code128Mode === Code128Mode.UCCCase;
+    const lineAbove = o.lineAbove ?? lineAboveDefault;
+    const checkDigit = o.checkDigit ?? false;
 
     // Add ^BY command for module width and ratio control
     const byCmd = `^BY${m},${ratio},${h}`;
 
     let spec = '';
     switch (o.type) {
-      case 'Code128':
-        spec = `^BC${r},${h},Y,N,N`;
+      case 'Code128': {
+        const mode = o.code128Mode ? `,${o.code128Mode}` : '';
+        spec = `^BC${r},${h},${yn(line)},${yn(lineAbove)},${yn(checkDigit)}${mode}`;
         break;
+      }
       case 'Code39':
-        spec = `^B3${r},${m},Y,N`;
+        spec = `^B3${r},${h},${yn(line)},${yn(lineAbove)},${yn(checkDigit)}`;
         break;
       case 'EAN13':
-        spec = `^BE${r},${h},Y`;
+        spec = `^BE${r},${h},${yn(line)},${yn(lineAbove)}`;
         break;
       case 'UPCA':
-        spec = `^B8${r},${h},Y,N,N`;
+        spec = `^B8${r},${h},${yn(line)},${yn(lineAbove)},${yn(checkDigit)}`;
         break;
       case 'ITF':
-        spec = `^BI${r},${h},Y,N`;
+        spec = `^BI${r},${h},${yn(line)},${yn(lineAbove)}`;
         break;
       case 'PDF417':
-        spec = `^B7${r},${m},${m},3,N,N,N`;
+        spec = `^B7${r},${h},${clampRange(o.pdf417SecurityLevel ?? 0, 0, 8)},${clampRange(
+          o.pdf417Columns ?? 3,
+          1,
+          30,
+        )},${clampRange(o.pdf417Rows ?? 3, 3, 90)},${yn(o.pdf417Truncate ?? false)}`;
         break;
       case 'QRCode': {
         // ^BQ orientation,model,magnification,errorCorrection,mask
@@ -174,11 +185,11 @@ export class Label {
         const model = o.qrModel ?? 2; // Default to enhanced model 2
         const errorCorrection = o.qrErrorCorrection ?? 'Q'; // Default to high reliability
         const mask = o.qrMask ?? 7; // Default mask pattern
-        spec = `^BQN,${model},${m},${errorCorrection},${mask}`;
+        spec = `^BQ${r},${model},${m},${errorCorrection},${mask}`;
         break;
       }
       case 'DataMatrix':
-        spec = `^BX${r},${m},200`;
+        spec = `^BX${r},${m},${clampRange(o.dataMatrixQuality ?? 200, 1, 99999)}`;
         break;
     }
 
@@ -551,3 +562,4 @@ const clampRange = (n: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.round(n)));
 const clamp1 = (n: number) => Math.max(1, Math.round(n));
 const clamp0 = (n: number) => Math.max(0, Math.round(n));
+const yn = (b: boolean) => (b ? 'Y' : 'N');

@@ -262,6 +262,24 @@ export enum Barcode {
 }
 
 /**
+ * Code 128 encoding mode for the ^BC command.
+ *
+ * @remarks
+ * - N: No mode (subsets supplied in the data stream)
+ * - U: UCC case mode (19-digit input)
+ * - A: Automatic subset switching
+ * - D: UCC/EAN mode for GS1 numbers
+ *
+ * Defaults to N (no mode) when omitted.
+ */
+export enum Code128Mode {
+  None = 'N',
+  UCCCase = 'U',
+  Auto = 'A',
+  UCCEan = 'D',
+}
+
+/**
  * Font families available in ZPL.
  *
  * @remarks
@@ -406,6 +424,7 @@ export interface TextOpts {
  * - `module`: Optional module width for the barcode.
  * - `ratio`: Optional module width ratio for the ^BY command.
  * - `rotate`: Optional orientation of the barcode (N, R, I, B).
+ * - `code128Mode`: Optional Code 128 mode (N, U, A, D) to control GS1/auto behavior.
  *
  * QR Code specific options (only used when type is QRCode):
  * - `qrErrorCorrection`: Error correction level for QR codes.
@@ -422,6 +441,24 @@ export interface BarcodeOpts {
   module?: number;
   ratio?: number; // Module width ratio for ^BY command
   rotate?: Orientation;
+  /** Code 128 mode flag for ^BC (only for Code128 type) */
+  code128Mode?: Code128Mode;
+  /** Whether to print the human-readable interpretation line (defaults to true for linear barcodes). */
+  line?: boolean;
+  /** Whether to print the interpretation line above the barcode (defaults to false; Code128 mode U defaults to true). */
+  lineAbove?: boolean;
+  /** Whether to print or calculate a check digit when supported (defaults to false). */
+  checkDigit?: boolean;
+  /** PDF417: security level (0-8, default 0 = auto). */
+  pdf417SecurityLevel?: number;
+  /** PDF417: number of columns (1-30, default 3). */
+  pdf417Columns?: number;
+  /** PDF417: number of rows (3-90, default 3). */
+  pdf417Rows?: number;
+  /** PDF417: truncate right row indicator to reduce width (default false). */
+  pdf417Truncate?: boolean;
+  /** DataMatrix: quality setting (1-99999, default 200). */
+  dataMatrixQuality?: number;
 
   // QR Code specific parameters (only used when type is QRCode)
   /** QR Code error correction level (only for QRCode type) */
