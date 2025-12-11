@@ -3,6 +3,8 @@
 import { Label } from '../../src/core/label.js';
 import {
   Barcode,
+  Code128Mode,
+  DiagonalOrientation,
   Fill,
   FontFamily,
   Justify,
@@ -121,6 +123,11 @@ describe('Text Functionality', () => {
     expect(zpl).toContain('^ABN,20,15');
   });
 
+  test('text() should allow explicit empty hex indicator', () => {
+    const zpl = label.text({ at: { x: 0, y: 0 }, text: 'Hexless', hexIndicator: '' }).toZPL();
+    expect(zpl).toContain('^FH^FDHexless^FS');
+  });
+
   test('text() should handle rotation', () => {
     const result = label.text({
       at: { x: 50, y: 100 },
@@ -233,6 +240,36 @@ describe('Text Functionality', () => {
     // 10mm at 300 DPI ≈ 118 dots, 15mm ≈ 177 dots
     expect(zpl).toContain('^FO118,177');
   });
+
+  test('text() should emit ^FH when hexIndicator is provided', () => {
+    const zpl = label
+      .text({
+        at: { x: 10, y: 20 },
+        text: 'Line1_0A',
+        hexIndicator: '_',
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FH_^FDLine1_0A^FS');
+  });
+
+  test('text() should reject invalid hexIndicator values', () => {
+    expect(() =>
+      label.text({ at: { x: 0, y: 0 }, text: 'Test', hexIndicator: 'ab' }),
+    ).toThrow('hexIndicator must be a single ASCII character.');
+
+    expect(() =>
+      label.text({ at: { x: 0, y: 0 }, text: 'Test', hexIndicator: 'a' }),
+    ).toThrow('hexIndicator cannot be a lowercase letter (a-z).');
+
+    expect(() =>
+      label.text({ at: { x: 0, y: 0 }, text: 'Test', hexIndicator: '^' }),
+    ).toThrow('hexIndicator cannot be a ZPL command or parameter delimiter (^, ~, ,).');
+
+    expect(() =>
+      label.text({ at: { x: 0, y: 0 }, text: 'Test', hexIndicator: '\n' }),
+    ).toThrow('hexIndicator must be a printable ASCII character.');
+  });
 });
 
 describe('Barcode Functionality', () => {
@@ -253,6 +290,67 @@ describe('Barcode Functionality', () => {
     expect(zpl).toContain('^FO50,100');
     expect(zpl).toContain('^BCN,100,Y,N,N');
     expect(zpl).toContain('^FD1234567890^FS');
+  });
+
+  test('barcode() should allow Code128 mode selection', () => {
+    const zpl = label
+      .barcode({
+        at: { x: 10, y: 20 },
+        type: Barcode.Code128,
+        data: '1234567890',
+        code128Mode: Code128Mode.Auto,
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^BCN,100,Y,N,N,A');
+  });
+
+  test('barcode() should allow Code128 line placement and check digit control', () => {
+    const zpl = label
+      .barcode({
+        at: { x: 0, y: 0 },
+        type: Barcode.Code128,
+        data: '0123456789',
+        height: 150,
+        line: false,
+        lineAbove: true,
+        checkDigit: true,
+        code128Mode: Code128Mode.None,
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^BCN,150,N,Y,Y');
+  });
+
+  test('barcode() should allow PDF417 configuration', () => {
+    const zpl = label
+      .barcode({
+        at: { x: 5, y: 5 },
+        type: Barcode.PDF417,
+        data: 'PDF417DATA',
+        height: 40,
+        pdf417SecurityLevel: 5,
+        pdf417Columns: 4,
+        pdf417Rows: 10,
+        pdf417Truncate: true,
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^B7N,40,5,4,10,Y');
+  });
+
+  test('barcode() should allow DataMatrix quality override', () => {
+    const zpl = label
+      .barcode({
+        at: { x: 5, y: 5 },
+        type: Barcode.DataMatrix,
+        data: 'DM',
+        module: 3,
+        dataMatrixQuality: 150,
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^BXN,3,150');
   });
 
   test('barcode() should create QRCode', () => {
@@ -277,7 +375,7 @@ describe('Barcode Functionality', () => {
     });
     const zpl = result.toZPL();
 
-    expect(zpl).toContain('^BEN,80,Y');
+    expect(zpl).toContain('^BEN,80,Y,N');
   });
 
   test('barcode() should handle rotation', () => {
@@ -289,7 +387,7 @@ describe('Barcode Functionality', () => {
     });
     const zpl = result.toZPL();
 
-    expect(zpl).toContain('^B3I,2,Y,N');
+    expect(zpl).toContain('^B3I,100,Y,N,N');
   });
 
   test('barcode() should handle all barcode types', () => {
@@ -316,6 +414,19 @@ describe('Barcode Functionality', () => {
       expect(zpl).toContain('^FD');
       expect(zpl).toContain('^FS');
     });
+  });
+
+  test('barcode() should emit ^FH when hexIndicator is provided', () => {
+    const zpl = label
+      .barcode({
+        at: { x: 12, y: 34 },
+        type: Barcode.Code128,
+        data: 'Hello_0AWorld',
+        hexIndicator: '_',
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^BY2,3,100^BCN,100,Y,N,N^FH_^FDHello_0AWorld^FS');
   });
 });
 
@@ -373,6 +484,107 @@ describe('Box/Graphics Functionality', () => {
     // Convert mm to dots at 203 DPI
     expect(zpl).toMatch(/\^FO\d+,\d+/);
     expect(zpl).toMatch(/\^GB\d+,\d+,1,B,0\^FS/);
+  });
+
+  test('circle() should create circle with defaults', () => {
+    const result = label.circle({
+      at: { x: 20, y: 30 },
+      diameter: 40,
+    });
+    const zpl = result.toZPL();
+
+    expect(zpl).toContain('^FO20,30');
+    expect(zpl).toContain('^GC40,1,B^FS');
+  });
+
+  test('circle() should handle custom thickness, fill, and reverse', () => {
+    const zpl = label
+      .circle({
+        at: { x: 10, y: 15 },
+        diameter: 25,
+        thickness: 3,
+        fill: Fill.White,
+        reverse: true,
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO10,15^FR^GC25,3,W^FS');
+  });
+
+  test('ellipse() should emit ^GE with converted units', () => {
+    const labelMM = Label.create({ w: 100, h: 150, units: Units.Millimeter, dpi: 300 });
+    const zpl = labelMM
+      .ellipse({
+        at: { x: 5, y: 5 },
+        size: { w: 10, h: 15 },
+        thickness: 2,
+      })
+      .toZPL();
+
+    expect(zpl).toMatch(/\^FO\d+,\d+\^GE\d+,\d+,2,B\^FS/);
+  });
+
+  test('ellipse() should honor reverse fill', () => {
+    const zpl = label
+      .ellipse({
+        at: { x: 10, y: 12 },
+        size: { w: 60, h: 40 },
+        thickness: 2,
+        fill: Fill.White,
+        reverse: true,
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO10,12^FR^GE60,40,2,W^FS');
+  });
+
+  test('ellipse() should default thickness to 1 when omitted', () => {
+    const zpl = label
+      .ellipse({
+        at: { x: 0, y: 0 },
+        size: { w: 20, h: 10 },
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^GE20,10,1,B^FS');
+  });
+
+  test('diagonalLine() should default to right orientation', () => {
+    const zpl = label
+      .diagonalLine({
+        at: { x: 0, y: 0 },
+        size: { w: 50, h: 20 },
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^GD50,20,1,B,R^FS');
+  });
+
+  test('diagonalLine() should support left orientation and reverse', () => {
+    const zpl = label
+      .diagonalLine({
+        at: { x: 5, y: 5 },
+        size: { w: 30, h: 30 },
+        thickness: 4,
+        fill: Fill.White,
+        orientation: DiagonalOrientation.Left,
+        reverse: true,
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO5,5^FR^GD30,30,4,W,L^FS');
+  });
+
+  test('shape helpers should clamp thickness to minimum of 1', () => {
+    const zpl = label
+      .circle({ at: { x: 0, y: 0 }, diameter: 10, thickness: 0 })
+      .ellipse({ at: { x: 0, y: 0 }, size: { w: 10, h: 5 }, thickness: -5 })
+      .diagonalLine({ at: { x: 0, y: 0 }, size: { w: 5, h: 5 }, thickness: 0 })
+      .toZPL();
+
+    expect(zpl).toContain('^GC10,1,B');
+    expect(zpl).toContain('^GE10,5,1,B');
+    expect(zpl).toContain('^GD5,5,1,B');
   });
 });
 
@@ -889,6 +1101,30 @@ describe('Real-world ZPL Examples', () => {
 });
 
 describe('Global Settings Functionality', () => {
+  test('setCharacterSet() emits ^CI with UTF-8 recommendation', () => {
+    const label = Label.create({ w: 400, h: 600 }).setCharacterSet({ charset: 28 });
+
+    expect(label.toZPL()).toContain('^CI28');
+  });
+
+  test('setCharacterSet() supports custom mappings with clamping', () => {
+    const label = Label.create({ w: 400, h: 600 }).setCharacterSet({
+      charset: 0,
+      customMappings: [34, 67, 89, 61, 129, 400],
+    });
+
+    expect(label.toZPL()).toContain('^CI0,34,67,89,61,129,255');
+  });
+
+  test('setCharacterSet() enforces mapping pairs', () => {
+    expect(() =>
+      Label.create({ w: 400, h: 600 }).setCharacterSet({
+        charset: 0,
+        customMappings: [12, 34, 56],
+      }),
+    ).toThrow('customMappings must be provided as pairs of integers.');
+  });
+
   test('setDefaultFont() should generate CF command with all parameters', () => {
     const label = Label.create({ w: 400, h: 600 }).setDefaultFont({
       family: FontFamily.B,
