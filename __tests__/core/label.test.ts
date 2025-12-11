@@ -6,6 +6,7 @@ import {
   Fill,
   FontFamily,
   Justify,
+  Mirror,
   Orientation,
   RFIDBank,
   Units,
@@ -50,6 +51,16 @@ describe('Label Factory Methods', () => {
 
     expect(zpl).toContain('^POR');
     expect(zpl).toContain('^LH10,20');
+  });
+
+  test('Label.create() should mirror label content when requested', () => {
+    const label = Label.create({
+      w: 400,
+      h: 600,
+      mirror: Mirror.On,
+    });
+
+    expect(label.toZPL()).toContain('^PMY');
   });
 
   test('Label.parse() should parse existing ZPL', () => {

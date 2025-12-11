@@ -4,6 +4,8 @@
 import type {
   DPI,
   MediaTracking,
+  Mirror,
+  Orientation,
   Position,
   PrinterConfigOpts,
   PrinterMode,
@@ -27,6 +29,8 @@ export const buildPrinterConfigTokens = (
 
   if (opts.mode) commands.push(`^MM${opts.mode}`);
   if (opts.mediaTracking) commands.push(`^MN${opts.mediaTracking}`);
+  if (opts.mirror) commands.push(`^PM${opts.mirror}`);
+  if (opts.orientation) commands.push(`^PO${opts.orientation}`);
   if (opts.printWidth != null) {
     commands.push(`^PW${toDots(opts.printWidth, cfg.dpi, cfg.units)}`);
   }
@@ -109,6 +113,16 @@ export class PrinterConfig {
   /** Set media tracking / sensor strategy (^MN). */
   mediaTracking(mediaTracking: MediaTracking): PrinterConfig {
     return this.with({ mediaTracking });
+  }
+
+  /** Mirror label content across the vertical axis (^PM). */
+  mirror(mirror: Mirror): PrinterConfig {
+    return this.with({ mirror });
+  }
+
+  /** Set inverted/normal print orientation (^PO). */
+  orientation(orientation: Orientation): PrinterConfig {
+    return this.with({ orientation });
   }
 
   /** Set print width (^PW). Provide dots or preconverted values. */

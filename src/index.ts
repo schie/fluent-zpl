@@ -22,6 +22,7 @@ export {
   FontFamily,
   Justify,
   MediaTracking,
+  Mirror,
   Orientation,
   PrinterConfiguration,
   PrinterMode,

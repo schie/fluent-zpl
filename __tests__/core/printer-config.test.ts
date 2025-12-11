@@ -1,6 +1,13 @@
 // Tests for src/core/printer-config.ts
 
-import { MediaTracking, PrinterConfiguration, PrinterMode, Units } from '../../src/_types.js';
+import {
+  MediaTracking,
+  Mirror,
+  Orientation,
+  PrinterConfiguration,
+  PrinterMode,
+  Units,
+} from '../../src/_types.js';
 import { inch } from '../../src/_unit-helpers.js';
 import { PrinterConfig } from '../../src/core/printer-config.js';
 import { ZPLProgram } from '../../src/core/program.js';
@@ -19,6 +26,15 @@ describe('PrinterConfig builder', () => {
       .toZPL();
 
     expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4^MD10~TA25^LH0,0^JUS^XZ');
+  });
+
+  test('supports mirror (^PM) and orientation (^PO)', () => {
+    const zpl = PrinterConfig.create()
+      .mirror(Mirror.On)
+      .orientation(Orientation.Inverted180)
+      .toZPL();
+
+    expect(zpl).toBe('^XA^PMY^POI^XZ');
   });
 
   test('build() feeds ZPLProgram.printerConfig()', () => {

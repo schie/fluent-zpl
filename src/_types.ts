@@ -89,6 +89,8 @@ export interface LabelOptions {
   dpi?: DPI;
   /** Label home/origin (maps to ^LH) */
   origin?: { x: number; y: number };
+  /** Mirror label content across the vertical axis (maps to ^PM) */
+  mirror?: Mirror;
   /** Print orientation (maps to ^PO) */
   orientation?: Orientation;
 }
@@ -115,6 +117,14 @@ export enum MediaTracking {
   Continuous = 'N',
   NonContinuous = 'Y',
   Mark = 'Z',
+}
+
+/**
+ * Mirror mode for label content (^PM).
+ */
+export enum Mirror {
+  Off = 'N',
+  On = 'Y',
 }
 
 /**
@@ -151,6 +161,10 @@ export interface PrinterConfigOpts {
   slewSpeed?: number;
   /** Backfeed speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
   backfeedSpeed?: number;
+  /** Mirror label content across the vertical axis (^PM). */
+  mirror?: Mirror;
+  /** Inverted/normal print orientation (^PO). Defaults to N on the printer. */
+  orientation?: Orientation;
   /** Darkness setting (^MD). Rounded to an integer and clamped between -30 and 30. */
   darkness?: number;
   /** Tear-off adjustment (~TA). Uses the current unit context, rounded and clamped between -120 and 120. */

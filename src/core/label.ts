@@ -58,6 +58,7 @@ export class Label {
     const units: Units = opts.units ?? Units.Dot;
 
     const head: string[] = ['^XA'];
+    if (opts.mirror) head.push(`^PM${opts.mirror}`);
     if (opts.orientation) head.push(`^PO${opts.orientation}`);
     if (opts.origin)
       head.push(`^LH${toDots(opts.origin.x, dpi, units)},${toDots(opts.origin.y, dpi, units)}`);
