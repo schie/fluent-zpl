@@ -23,6 +23,8 @@ A modern, type-safe TypeScript library for generating **ZPL (Zebra Programming L
 - ✅ **ZPL Compliant** - Generates valid ZPL according to specification
 - ⚙️ **Global Settings** - Support for `^CF`, `^BY`, `^FR` commands and ZPL comments
 - 🧪 **Thoroughly Tested** - Comprehensive test suite with high coverage
+- 🖍️ **Shapes & Lines** - Circles, ellipses, and diagonals for richer layouts
+- 🌐 **UTF-8 Ready** - `^CI28` plus inline hex escapes for international text
 - 📱 **Tree Shakeable** - Import only what you need
 - 🖼️ **Image Support** - Convert RGBA images to ZPL bitmaps
 - 📡 **RFID/EPC Support** - Encode and read RFID tags with EPC data
@@ -77,6 +79,8 @@ import {
   ZPLProgram,
   PrinterMode,
   MediaTracking,
+  Mirror,
+  Orientation,
   PrinterConfig,
   PrinterConfiguration,
   Label,
@@ -89,6 +93,8 @@ const program = ZPLProgram.create()
   .printerConfig({
     mode: PrinterMode.TearOff,
     mediaTracking: MediaTracking.NonContinuous,
+    mirror: Mirror.On,
+    orientation: Orientation.Inverted180,
     printWidth: 801,
     printSpeed: 4,
     darkness: 10,
@@ -132,6 +138,8 @@ Or use the fluent printer config builder when you want to compose setup steps:
 const config = PrinterConfig.create()
   .mode(PrinterMode.TearOff)
   .mediaTracking(MediaTracking.NonContinuous)
+  .mirror(Mirror.On)
+  .orientation(Orientation.Inverted180)
   .printWidth(inch(3, 300))
   .printSpeed(4)
   .darkness(10)
@@ -219,6 +227,45 @@ label
     at: { x: 50, y: 400 },
     text: 'Simple Caption',
     size: 24,
+  })
+
+  // Text with ^FH to embed hex escapes (e.g., line breaks or delimiters)
+  .text({
+    at: { x: 50, y: 480 },
+    text: 'Line1_0A0DLine2',
+    hexIndicator: '_', // Emits ^FH_ before the ^FD block
+  });
+```
+
+**Hex escapes (^FH)** – add `hexIndicator` to emit `^FH` before a text or barcode field when you need inline hex codes (e.g., line breaks or reserved characters). Any printable ASCII except lowercase a–z and `^`, `~`, `,` is allowed; an empty string uses the default caret indicator. Example with CRLF and literal `>`/`^`:
+
+```typescript
+.text({
+  at: { x: 40, y: 120 },
+  text: 'Line1_0D_0ALine2 _3E _5E caret',
+  hexIndicator: '_',
+})
+// => ^FH_^FDLine1_0D_0ALine2 _3E _5E caret^FS
+```
+Note: some renderers (e.g., zpl-renderer-js) may not process ^FH escapes even though printers do.
+
+Set `hexIndicator` to emit `^FH` for fields that need inline hex escapes; it works for both text and barcodes.
+
+**UTF-8 and special characters** – switch to the UTF-8 code page with `^CI28` to render accented text, then use `hexIndicator` when you need inline control codes (line breaks, reserved characters):
+
+```typescript
+Label.create({ w: 400, h: 250 })
+  .setCharacterSet({ charset: 28 })
+  .text({
+    at: { x: 40, y: 40 },
+    text: 'Café crème · São Paulo',
+    font: { family: FontFamily.B, h: 28, w: 26 },
+  })
+  .text({
+    at: { x: 40, y: 90 },
+    text: 'Line1_0D_0ALine2 _3E _5E caret',
+    hexIndicator: '_',
+    wrap: { width: 320, lines: 2, spacing: 2 },
   });
 ```
 
@@ -275,6 +322,26 @@ label
     at: { x: 50, y: 200 },
     size: { w: 300, h: 1 }, // Horizontal line
     border: 1,
+  })
+
+  // Circles, ellipses, and diagonals
+  .circle({
+    at: { x: 40, y: 240 },
+    diameter: 120,
+    thickness: 4,
+    fill: Fill.Black,
+  })
+  .ellipse({
+    at: { x: 200, y: 240 },
+    size: { w: 140, h: 80 },
+    thickness: 3,
+    fill: Fill.Black,
+  })
+  .diagonalLine({
+    at: { x: 50, y: 360 },
+    size: { w: 260, h: 90 },
+    thickness: 4,
+    fill: Fill.Black,
   })
 
   // Multi-line address blocks
@@ -376,6 +443,9 @@ Control global ZPL settings that affect subsequent commands:
 
 ```typescript
 label
+  // Character set (^CI) - UTF-8 is recommended
+  .setCharacterSet({ charset: 28 })
+
   // Set global default font (^CF command)
   .setDefaultFont({
     family: FontFamily.F,
@@ -404,7 +474,16 @@ label
   });
 ```
 
-These global settings generate the exact ZPL commands (`^CF`, `^BY`, `^FR`) found in complex label specifications, enabling precise control over printer behavior and optimized ZPL output.
+Custom mappings for Code Page 850 variants can be supplied as pairs of integers (`customMappings`) when using charset values 0-13:
+
+```typescript
+label.setCharacterSet({
+  charset: 0,
+  customMappings: [34, 67, 89, 61, 129, 232],
+});
+```
+
+These global settings generate the exact ZPL commands (`^CI`, `^CF`, `^BY`, `^FR`) found in complex label specifications, enabling precise control over printer behavior and optimized ZPL output.
 
 ### Label Tagged Template
 
@@ -656,6 +735,9 @@ const zpl = label.toZPL();
   - `.text(opts)` - Add text field
   - `.barcode(opts)` - Add barcode
   - `.box(opts)` - Add graphics box (supports `reverse: true` for ^FR)
+  - `.circle(opts)` - Add graphic circle (^GC)
+  - `.ellipse(opts)` - Add graphic ellipse (^GE)
+  - `.diagonalLine(opts)` - Add diagonal line (^GD)
   - `.caption(opts)` - Add simple text
   - `.qr(opts)` - Add QR code
   - `.gs1_128(opts)` - Emit GS1-128 via Code 128 with automatic FNC1 handling
@@ -667,6 +749,7 @@ const zpl = label.toZPL();
   - `.epc(opts)` - Add EPC encoding (convenience method)
   - `.comment(text)` - Add ZPL comment (^FX)
   - `.withMetadata(meta)` - Add structured metadata as comments
+  - `.setCharacterSet(opts)` - Set the active character set (^CI)
   - `.setDefaultFont(opts)` - Set global default font (^CF)
   - `.setBarcodeDefaults(opts)` - Set global barcode settings (^BY)
   - `.toZPL()` - Generate ZPL string
@@ -704,6 +787,7 @@ const zpl = label.toZPL();
 - **Live site**: https://schie.github.io/fluent-zpl/ (API docs) and https://schie.github.io/fluent-zpl/examples/ (interactive labels)
 - **Cross-links**: Typedoc navigation includes an Examples link; the playground header links back to the docs
 - **Local build**: `npm ci --prefix examples` once, then `npm run docs:pages` to emit Typedoc HTML plus the Vite app to `docs/examples/` for GitHub Pages
+- **New demos**: Shapes (`^GC`, `^GE`, `^GD`), UTF-8 (`^CI28`), and `^FH` hex-escape handling are available in the examples app
 
 ## 🤝 Contributing
 
