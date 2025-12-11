@@ -275,6 +275,18 @@ export enum Fill {
 }
 
 /**
+ * Orientation for diagonal line graphics (^GD).
+ *
+ * @remarks
+ * - R: Right-leaning line (bottom-left to top-right)
+ * - L: Left-leaning line (top-left to bottom-right)
+ */
+export enum DiagonalOrientation {
+  Right = 'R',
+  Left = 'L',
+}
+
+/**
  * RFID memory banks for read/write operations.
  *
  * @remarks
@@ -385,6 +397,23 @@ export interface BoxOpts {
   reverse?: boolean;
   /** Corner rounding in dots; rounded to an integer and clamped between 0 and 8. */
   cornerRadius?: number;
+}
+
+/**
+ * Options for diagonal line graphics (^GD).
+ */
+export interface DiagonalLineOpts {
+  at: Position;
+  /** Width and height in current units; converted to dots. */
+  size: { w: number; h: number };
+  /** Line thickness in dots; rounded to an integer with a minimum of 1. */
+  thickness?: number;
+  /** Line color; black by default. */
+  fill?: Fill;
+  /** Orientation of the diagonal line; defaults to right-leaning ('R'). */
+  orientation?: DiagonalOrientation;
+  /** Apply field reverse (^FR) to invert colors. */
+  reverse?: boolean;
 }
 
 /**

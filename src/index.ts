@@ -29,6 +29,7 @@ export {
   QRErrorCorrection,
   RFIDBank,
   Units,
+  DiagonalOrientation,
 } from './_types.js';
 
 // Essential types for public API
@@ -37,6 +38,7 @@ export type {
   BarcodeOpts,
   BoxOpts,
   CaptionOpts,
+  DiagonalLineOpts,
   DPI,
   EPCOpts,
   GS1_128Opts,

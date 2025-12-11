@@ -8,6 +8,7 @@ import type {
   BoxOpts,
   CaptionOpts,
   DPI,
+  DiagonalLineOpts,
   EPCOpts,
   GS1_128Opts,
   LabelOptions,
@@ -17,7 +18,16 @@ import type {
   TextOpts,
   Token,
 } from '../_types.js';
-import { Barcode, Fill, FontFamily, Justify, Orientation, RFIDBank, Units } from '../_types.js';
+import {
+  Barcode,
+  DiagonalOrientation,
+  Fill,
+  FontFamily,
+  Justify,
+  Orientation,
+  RFIDBank,
+  Units,
+} from '../_types.js';
 import { toDots } from '../_unit-helpers.js';
 import {
   buildImageCachedTokens,
@@ -190,6 +200,27 @@ export class Label {
     const radius = Math.max(0, Math.min(8, Math.round(o.cornerRadius ?? 0))); // ZPL supports 0-8
     const reverse = o.reverse ? '^FR' : '';
     const chunk = `^FO${x},${y}${reverse}^GB${w},${h},${t},${fill},${radius}^FS`;
+    return this._insertBeforeXZ(tokenizeZPL(chunk));
+  }
+
+
+  /**
+   * Draw a diagonal line.
+   *
+   * @remarks
+   * Line thickness is rounded to an integer with a minimum of 1.
+   */
+  diagonalLine(o: DiagonalLineOpts): Label {
+    const { dpi, units } = this.cfg;
+    const x = toDots(o.at.x, dpi, units);
+    const y = toDots(o.at.y, dpi, units);
+    const w = toDots(o.size.w, dpi, units);
+    const h = toDots(o.size.h, dpi, units);
+    const thickness = clamp1(o.thickness ?? 1);
+    const fill = o.fill ?? Fill.Black;
+    const orientation = o.orientation ?? DiagonalOrientation.Right;
+    const reverse = o.reverse ? '^FR' : '';
+    const chunk = `^FO${x},${y}${reverse}^GD${w},${h},${thickness},${fill},${orientation}^FS`;
     return this._insertBeforeXZ(tokenizeZPL(chunk));
   }
 
