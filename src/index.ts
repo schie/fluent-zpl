@@ -42,6 +42,7 @@ export type {
   CharacterSet,
   CharacterSetOptions,
   DiagonalLineOpts,
+  EllipseOpts,
   DPI,
   EPCOpts,
   GS1_128Opts,

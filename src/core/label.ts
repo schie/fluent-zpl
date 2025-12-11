@@ -11,6 +11,7 @@ import type {
   CharacterSetOptions,
   DPI,
   DiagonalLineOpts,
+  EllipseOpts,
   EPCOpts,
   GS1_128Opts,
   LabelOptions,
@@ -225,6 +226,24 @@ export class Label {
     return this._insertBeforeXZ(tokenizeZPL(chunk));
   }
 
+  /**
+   * Draw an ellipse.
+   *
+   * @remarks
+   * Border thickness is rounded to an integer with a minimum of 1.
+   */
+  ellipse(o: EllipseOpts): Label {
+    const { dpi, units } = this.cfg;
+    const x = toDots(o.at.x, dpi, units);
+    const y = toDots(o.at.y, dpi, units);
+    const w = toDots(o.size.w, dpi, units);
+    const h = toDots(o.size.h, dpi, units);
+    const thickness = clamp1(o.thickness ?? 1);
+    const fill = o.fill ?? Fill.Black;
+    const reverse = o.reverse ? '^FR' : '';
+    const chunk = `^FO${x},${y}${reverse}^GE${w},${h},${thickness},${fill}^FS`;
+    return this._insertBeforeXZ(tokenizeZPL(chunk));
+  }
 
   /**
    * Draw a diagonal line.

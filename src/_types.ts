@@ -471,6 +471,21 @@ export interface CircleOpts {
 }
 
 /**
+ * Options for graphic ellipses (^GE).
+ */
+export interface EllipseOpts {
+  at: Position;
+  /** Width and height in current units; converted to dots. */
+  size: { w: number; h: number };
+  /** Border thickness in dots; rounded to an integer with a minimum of 1. */
+  thickness?: number;
+  /** Fill color; black by default. */
+  fill?: Fill;
+  /** Apply field reverse (^FR) to invert colors. */
+  reverse?: boolean;
+}
+
+/**
  * Options for diagonal line graphics (^GD).
  */
 export interface DiagonalLineOpts {
