@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.2](https://github.com/schie/fluent-zpl/compare/v0.11.1...v0.11.2) (2026-01-06)
+
+
+### Bug Fixes
+
+* **printer-config:** clamping print, slew, and backfeed speed between 1 and 14 ([13c75a7](https://github.com/schie/fluent-zpl/commit/13c75a703c0cc3b982015cbec97d3a44ab102dd3))
+
 ## [0.11.1](https://github.com/schie/fluent-zpl/compare/v0.11.0...v0.11.1) (2025-12-11)
 
 
