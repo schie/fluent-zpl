@@ -22,7 +22,7 @@ describe('ZPLProgram', () => {
         configuration: PrinterConfiguration.Save,
       });
 
-    expect(program.toZPL()).toBe('^XA^MMT^MNY^PW801^PR4^MD10^LH0,0^JUS^XZ');
+    expect(program.toZPL()).toBe('^XA^MMT^MNY^PW801^PR4,6,2^MD10^LH0,0^JUS^XZ');
   });
 
   test('label() factory composes label formats', () => {

@@ -25,7 +25,7 @@ describe('PrinterConfig builder', () => {
       .save()
       .toZPL();
 
-    expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4^MD10~TA25^LH0,0^JUS^XZ');
+    expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4,6,2^MD10~TA25^LH0,0^JUS^XZ');
   });
 
   test('supports mirror (^PM) and orientation (^PO)', () => {
@@ -45,7 +45,7 @@ describe('PrinterConfig builder', () => {
       .configuration(PrinterConfiguration.ReloadSaved);
 
     const zpl = ZPLProgram.create().printerConfig(builder.build()).toZPL();
-    expect(zpl).toBe('^XA^MMA^MNZ^PR3^JUR^XZ');
+    expect(zpl).toBe('^XA^MMA^MNZ^PR3,6,2^JUR^XZ');
   });
 
   test('covers speeds, unit conversion, additional commands, and reload helpers', () => {
@@ -67,6 +67,22 @@ describe('PrinterConfig builder', () => {
 
     expect(reloadSaved).toBe('^XA^JUR^XZ');
     expect(reloadFactory).toBe('^XA^JUF^XZ');
+  });
+
+  test('clamps ^PR speed components to 1-14 with rounding', () => {
+    const zpl = PrinterConfig.create()
+      .printSpeed(0.4)
+      .slewSpeed(14.6)
+      .backfeedSpeed(-2)
+      .toZPL();
+
+    expect(zpl).toBe('^XA^PR1,14,1^XZ');
+  });
+
+  test('defaults missing ^PR components when any speed is set', () => {
+    const zpl = PrinterConfig.create().slewSpeed(7).toZPL();
+
+    expect(zpl).toBe('^XA^PR2,7,2^XZ');
   });
 
   test('labelHomeOrigin sets ^LH0,0 and preserves immutability', () => {
@@ -108,8 +124,8 @@ describe('PrinterConfig builder', () => {
     const base = PrinterConfig.create().printSpeed(5);
     const tweaked = base.darkness(15);
 
-    expect(base.toZPL()).toBe('^XA^PR5^XZ');
-    expect(tweaked.toZPL()).toBe('^XA^PR5^MD15^XZ');
+    expect(base.toZPL()).toBe('^XA^PR5,6,2^XZ');
+    expect(tweaked.toZPL()).toBe('^XA^PR5,6,2^MD15^XZ');
   });
   test('labelHomeOrigin sets label home to origin (0,0)', () => {
     const zpl = PrinterConfig.create().labelHomeOrigin().toZPL();

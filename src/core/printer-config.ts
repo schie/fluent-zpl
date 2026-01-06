@@ -21,6 +21,10 @@ const clamp = (value: number, min: number, max: number): number => {
   return Math.min(max, Math.max(min, Math.round(value)));
 };
 
+const defaultPrintSpeed = 2;
+const defaultSlewSpeed = 6;
+const defaultBackfeedSpeed = 2;
+
 export const buildPrinterConfigTokens = (
   cfg: { dpi: DPI; units: Units },
   opts: PrinterConfigOpts,
@@ -36,11 +40,12 @@ export const buildPrinterConfigTokens = (
   }
 
   if (opts.printSpeed != null || opts.slewSpeed != null || opts.backfeedSpeed != null) {
-    const parts = [opts.printSpeed, opts.slewSpeed, opts.backfeedSpeed].map((value) =>
-      value == null ? '' : clamp(value, 0, 30).toString(),
-    );
-    while (parts.length && parts[parts.length - 1] === '') parts.pop();
-    if (parts.length) commands.push(`^PR${parts.join(',')}`);
+    const parts = [
+      opts.printSpeed ?? defaultPrintSpeed,
+      opts.slewSpeed ?? defaultSlewSpeed,
+      opts.backfeedSpeed ?? defaultBackfeedSpeed,
+    ].map((value) => clamp(value, 1, 14).toString());
+    commands.push(`^PR${parts.join(',')}`);
   }
 
   if (opts.darkness != null) commands.push(`^MD${clamp(opts.darkness, -30, 30)}`);
@@ -130,17 +135,17 @@ export class PrinterConfig {
     return this.with({ printWidth });
   }
 
-  /** Set print speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
+  /** Set print speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
   printSpeed(printSpeed: number): PrinterConfig {
     return this.with({ printSpeed });
   }
 
-  /** Set slew speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
+  /** Set slew speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 6). */
   slewSpeed(slewSpeed: number): PrinterConfig {
     return this.with({ slewSpeed });
   }
 
-  /** Set backfeed speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
+  /** Set backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
   backfeedSpeed(backfeedSpeed: number): PrinterConfig {
     return this.with({ backfeedSpeed });
   }

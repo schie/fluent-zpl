@@ -207,11 +207,11 @@ export interface PrinterConfigOpts {
   mediaTracking?: MediaTracking;
   /** Print width (^PW). Uses the current unit context. */
   printWidth?: number;
-  /** Print speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
+  /** Print speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
   printSpeed?: number;
-  /** Slew speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
+  /** Slew speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 6). */
   slewSpeed?: number;
-  /** Backfeed speed component (^PR). Rounded to an integer and clamped between 0 and 30. */
+  /** Backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
   backfeedSpeed?: number;
   /** Mirror label content across the vertical axis (^PM). */
   mirror?: Mirror;

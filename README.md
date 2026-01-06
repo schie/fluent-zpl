@@ -148,9 +148,11 @@ const config = PrinterConfig.create()
   .save(); // ^JUS
 
 const zpl = ZPLProgram.create().printerConfig(config.build()).toZPL();
-// => ^XA^MMT^MNY^PW900^PR4^MD10~TA25^LH0,0^JUS^XZ
+// => ^XA^MMT^MNY^PW900^PR4,6,2^MD10~TA25^LH0,0^JUS^XZ
 // Or send config.toZPL() directly if you only need the setup block (it wraps ^XA/^XZ for you)
 ```
+
+When you set any ^PR speed, missing components default to print 2, slew 6, and backfeed 2 per ZPL.
 
 `ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, `^LH`, `~TA`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution—every downstream helper (including `.label(...)`) inherits those settings. A single program can now cover:
 
