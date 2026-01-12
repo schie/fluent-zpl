@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`ZPL Output Snapshots Barcodes Code128 barcode 1`] = `"^XA^PW400^LL600^FO50,200^BY2,3,100^BCN,100,Y,N,N^FD123456789^FS^XZ"`;
 
