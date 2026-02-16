@@ -292,6 +292,166 @@ describe('Barcode Functionality', () => {
     expect(zpl).toContain('^FD1234567890^FS');
   });
 
+  test('barcodeCentered() should center barcode within label print width', () => {
+    const zpl = label
+      .barcodeCentered({
+        y: 120,
+        width: 180,
+        type: Barcode.Code128,
+        data: 'CENTERED',
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO110,120');
+    expect(zpl).toContain('^FDCENTERED^FS');
+  });
+
+  test('barcodeCentered() should auto-estimate width for Code128 when omitted', () => {
+    const zpl = label
+      .barcodeCentered({
+        y: 120,
+        module: 3,
+        type: Barcode.Code128,
+        data: '123456',
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO45,120');
+    expect(zpl).toContain('^BY3,3,100^BCN,100,Y,N,N');
+    expect(zpl).toContain('^FD123456^FS');
+  });
+
+  test('barcodeCentered() should support non-dot units', () => {
+    const labelMM = Label.create({ w: 100, h: 150, units: Units.Millimeter, dpi: 203 });
+    const zpl = labelMM
+      .barcodeCentered({
+        y: 20,
+        width: 50,
+        type: Barcode.Code128,
+        data: 'MM-CENTER',
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO199,160');
+    expect(zpl).toContain('^FDMM-CENTER^FS');
+  });
+
+  test('barcodeCentered() should support inch units', () => {
+    const labelInch = Label.create({ w: 4, h: 6, units: Units.Inch, dpi: 203 });
+    const zpl = labelInch
+      .barcodeCentered({
+        y: 1.25,
+        width: 1.5,
+        type: Barcode.Code128,
+        data: 'IN-CENTER',
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO253,254');
+    expect(zpl).toContain('^FDIN-CENTER^FS');
+  });
+
+  test('barcodeCentered() should require a print width (^PW)', () => {
+    const parsed = Label.parse('^XA^FO10,10^FDTEST^FS^XZ');
+
+    expect(() =>
+      parsed.barcodeCentered({
+        y: 10,
+        width: 50,
+        type: Barcode.Code128,
+        data: 'NO-PW',
+      }),
+    ).toThrow('barcodeCentered requires a label print width (^PW).');
+  });
+
+  test('barcodeCentered() should reject malformed empty ^PW values', () => {
+    const parsed = Label.parse('^XA^PW^FO10,10^FDTEST^FS^XZ');
+
+    expect(() =>
+      parsed.barcodeCentered({
+        y: 10,
+        width: 50,
+        type: Barcode.Code128,
+        data: 'BAD-PW',
+      }),
+    ).toThrow('barcodeCentered requires a label print width (^PW).');
+  });
+
+  test('barcodeCentered() should reject non-numeric ^PW values', () => {
+    const parsed = Label.parse('^XA^PWabc^FO10,10^FDTEST^FS^XZ');
+
+    expect(() =>
+      parsed.barcodeCentered({
+        y: 10,
+        width: 50,
+        type: Barcode.Code128,
+        data: 'BAD-PW',
+      }),
+    ).toThrow('barcodeCentered requires a label print width (^PW).');
+  });
+
+  test('barcodeCentered() should auto-estimate width for all supported barcode types', () => {
+    const types = [
+      Barcode.Code128,
+      Barcode.Code39,
+      Barcode.EAN13,
+      Barcode.UPCA,
+      Barcode.ITF,
+      Barcode.PDF417,
+      Barcode.QRCode,
+      Barcode.DataMatrix,
+    ] as const;
+
+    types.forEach((type) => {
+      const zpl = label
+        .barcodeCentered({
+          y: 40,
+          type,
+          data: '123456789012',
+        })
+        .toZPL();
+
+      expect(zpl).toMatch(/\^FO\d+,40/);
+      expect(zpl).toContain('^FD123456789012^FS');
+    });
+  });
+
+  test('barcodeCentered() should clamp x to zero when estimated width exceeds print width', () => {
+    const zpl = label
+      .barcodeCentered({
+        y: 25,
+        module: 6,
+        type: Barcode.Code128,
+        data: '12345678901234567890',
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO0,25');
+  });
+
+  test('barcodeCentered() should reject unsupported runtime barcode types', () => {
+    expect(() =>
+      label.barcodeCentered({
+        y: 40,
+        type: 'UnknownType' as Barcode,
+        data: '123',
+      }),
+    ).toThrow('Unsupported barcode type for centering: UnknownType');
+  });
+
+  test('barcodeCentered() should handle very long QR payloads when estimating width', () => {
+    const zpl = label
+      .barcodeCentered({
+        y: 70,
+        type: Barcode.QRCode,
+        data: 'X'.repeat(500),
+      })
+      .toZPL();
+
+    expect(zpl).toContain('^FO');
+    expect(zpl).toContain('^BQN,2,2,Q,7');
+  });
+
   test('barcode() should allow Code128 mode selection', () => {
     const zpl = label
       .barcode({

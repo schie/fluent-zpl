@@ -470,6 +470,23 @@ export interface BarcodeOpts {
 }
 
 /**
+ * Options for centered barcode fields (convenience wrapper around `barcode()`).
+ *
+ * @remarks
+ * This interface defines the configuration options for centering a barcode horizontally:
+ * - `y`: Vertical position for the barcode in current units.
+ * - `width`: Optional expected rendered barcode width in current units; used to compute centered `x`.
+ *   When omitted, `barcodeCentered()` auto-estimates width for supported barcode types.
+ * - all other barcode options are forwarded to `barcode()`.
+ *
+ * `barcodeCentered()` requires a print width (^PW) to be present in the label format.
+ */
+export interface BarcodeCenteredOpts extends Omit<BarcodeOpts, 'at'> {
+  y: number;
+  width?: number;
+}
+
+/**
  * Options for box/graphic fields on the label.
  *
  * @remarks

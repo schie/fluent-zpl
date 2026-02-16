@@ -4,6 +4,7 @@
 
 import type {
   AddressBlockOpts,
+  BarcodeCenteredOpts,
   BarcodeOpts,
   BoxOpts,
   CircleOpts,
@@ -196,6 +197,34 @@ export class Label {
     const hexIndicator = Label.buildHexIndicator(o.hexIndicator);
     const chunk = `^FO${x},${y}${byCmd}${spec}${hexIndicator}^FD${Label.escFD(o.data)}^FS`;
     return this._insertBeforeXZ(tokenizeZPL(chunk));
+  }
+
+  /**
+   * Add a barcode centered horizontally within the label print width (^PW).
+   *
+   * @remarks
+   * Centering uses `o.width` when provided. When omitted, width is estimated based on barcode type,
+   * module width, and payload/options. The method computes `x = (printWidth - width) / 2` and then
+   * forwards to `barcode()`. If the estimated width exceeds the print width, `x` is clamped to 0.
+   */
+  barcodeCentered(o: BarcodeCenteredOpts): Label {
+    const { dpi, units } = this.cfg;
+    const printWidthDots = this.getPrintWidthDots();
+    if (printWidthDots == null) {
+      throw new Error('barcodeCentered requires a label print width (^PW).');
+    }
+
+    const moduleWidth = clamp1(o.module ?? 2);
+    const barcodeWidthDots =
+      o.width != null ? toDots(o.width, dpi, units) : estimateCenteredBarcodeWidthDots(o);
+
+    const xDots = Math.max(0, Math.floor((printWidthDots - barcodeWidthDots) / 2));
+
+    return this.barcode({
+      ...o,
+      module: moduleWidth,
+      at: { x: fromDots(xDots, dpi, units), y: o.y },
+    });
   }
 
   /**
@@ -405,6 +434,21 @@ export class Label {
     return new Label(next, this.cfg);
   }
 
+  /** Read the effective print width (^PW) in dots from the token stream. */
+  private getPrintWidthDots(): number | undefined {
+    for (let i = this.tokens.length - 1; i >= 0; i--) {
+      const tok = this.tokens[i];
+      if (tok.k !== 'Cmd' || tok.mark !== '^' || tok.name !== 'PW') continue;
+
+      const raw = tok.params.split(',')[0]?.trim();
+      if (!raw) return undefined;
+      const parsed = Number.parseInt(raw, 10);
+      if (!Number.isFinite(parsed)) return undefined;
+      return parsed;
+    }
+    return undefined;
+  }
+
   /** Escape carets inside ^FD payloads per ZPL rules */
   private static escFD(s: string): string {
     return String(s).replace(/\^/g, '^^');
@@ -563,3 +607,70 @@ const clampRange = (n: number, min: number, max: number) =>
 const clamp1 = (n: number) => Math.max(1, Math.round(n));
 const clamp0 = (n: number) => Math.max(0, Math.round(n));
 const yn = (b: boolean) => (b ? 'Y' : 'N');
+const estimateCenteredBarcodeWidthDots = (o: BarcodeCenteredOpts): number => {
+  const moduleWidth = clamp1(o.module ?? 2);
+  switch (o.type) {
+    case Barcode.Code128:
+      // Modules: start(11) + n*data(11 each) + check(11) + stop+term(15) = 11n + 37
+      return (11 * String(o.data).length + 37) * moduleWidth;
+    case Barcode.Code39: {
+      // Approx modules: (n + start + stop) * (6 narrow + 3 wide + gap), no trailing gap after stop.
+      const ratio = clamp1(o.ratio ?? 3);
+      const chars = String(o.data).length + 2;
+      return ((7 + 3 * ratio) * chars - 1) * moduleWidth;
+    }
+    case Barcode.EAN13:
+    case Barcode.UPCA:
+      // Both symbologies are 95 modules wide for the encoded symbol.
+      return 95 * moduleWidth;
+    case Barcode.ITF: {
+      // Approx modules: start+stop(7) + 14 modules per digit pair.
+      const pairs = Math.ceil(String(o.data).length / 2);
+      return (14 * pairs + 7) * moduleWidth;
+    }
+    case Barcode.PDF417: {
+      const cols = clampRange(o.pdf417Columns ?? 3, 1, 30);
+      // Row width modules: start(17) + left RI(17) + data(cols*17) + right RI(17) + stop(18)
+      return (17 * (cols + 3) + 18) * moduleWidth;
+    }
+    case Barcode.QRCode: {
+      const dataLen = String(o.data).length;
+      const level = o.qrErrorCorrection ?? 'Q';
+      const version = estimateQRVersion(dataLen, level);
+      const symbolModules = 21 + (version - 1) * 4;
+      // Add 4-module quiet zone on both sides.
+      return (symbolModules + 8) * moduleWidth;
+    }
+    case Barcode.DataMatrix: {
+      const dataLen = Math.max(1, String(o.data).length);
+      // Heuristic for ECC200 square symbol side in modules; snapped to even module size.
+      const estimatedSide = clampRange(10 + Math.ceil(Math.sqrt(dataLen * 2)) * 2, 10, 144);
+      return estimatedSide * moduleWidth;
+    }
+    default:
+      throw new Error(`Unsupported barcode type for centering: ${String(o.type)}`);
+  }
+};
+const estimateQRVersion = (len: number, level: 'L' | 'M' | 'Q' | 'H') => {
+  // Byte-mode capacities for QR versions 1-10 (sufficient for centering estimates).
+  const caps: Record<'L' | 'M' | 'Q' | 'H', number[]> = {
+    L: [17, 32, 53, 78, 106, 134, 154, 192, 230, 271],
+    M: [14, 26, 42, 62, 84, 106, 122, 152, 180, 213],
+    Q: [11, 20, 32, 46, 60, 74, 86, 108, 130, 151],
+    H: [7, 14, 24, 34, 44, 58, 64, 84, 98, 119],
+  };
+  const dataLen = Math.max(1, Math.round(len));
+  const table = caps[level];
+  const idx = table.findIndex((cap) => dataLen <= cap);
+  return idx === -1 ? 10 : idx + 1;
+};
+const fromDots = (dots: number, dpi: DPI, units: Units) => {
+  switch (units) {
+    case Units.Dot:
+      return dots;
+    case Units.Millimeter:
+      return (dots * 25.4) / dpi;
+    case Units.Inch:
+      return dots / dpi;
+  }
+};

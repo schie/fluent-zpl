@@ -36,6 +36,7 @@ export {
 // Essential types for public API
 export type {
   AddressBlockOpts,
+  BarcodeCenteredOpts,
   BarcodeOpts,
   BoxOpts,
   CircleOpts,

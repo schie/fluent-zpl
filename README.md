@@ -283,6 +283,14 @@ label
     height: 80,
   })
 
+  // Centered barcode helper (uses explicit width, or auto-estimates when omitted)
+  .barcodeCentered({
+    y: 220,
+    // width: 180,
+    type: Barcode.Code128,
+    data: 'CENTERED-123',
+  })
+
   // QR Code
   .qr({
     at: { x: 200, y: 100 },
@@ -736,6 +744,7 @@ const zpl = label.toZPL();
   - `Label.parse(zpl)` - Parse existing ZPL
   - `.text(opts)` - Add text field
   - `.barcode(opts)` - Add barcode
+  - `.barcodeCentered(opts)` - Center barcode horizontally using ^PW
   - `.box(opts)` - Add graphics box (supports `reverse: true` for ^FR)
   - `.circle(opts)` - Add graphic circle (^GC)
   - `.ellipse(opts)` - Add graphic ellipse (^GE)
