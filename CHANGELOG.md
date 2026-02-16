@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/schie/fluent-zpl/compare/v0.11.2...v0.12.0) (2026-02-16)
+
+
+### Features
+
+* **label:** adding `.barcodeCentered(...)` ([263f7e8](https://github.com/schie/fluent-zpl/commit/263f7e8047d79e01f6d6c92e93555b48105b6b8a))
+
 ## [0.11.2](https://github.com/schie/fluent-zpl/compare/v0.11.1...v0.11.2) (2026-01-06)
 
 
