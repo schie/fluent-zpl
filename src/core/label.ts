@@ -55,6 +55,10 @@ import { buildRFIDReadTokens, buildRFIDWriteTokens } from './rfid.js';
 export class Label {
   /** Lossless token stream is the single source of truth for this Label */
   private readonly tokens: Token[];
+  /** Cached effective print width (^PW) in dots; null means computed but missing/malformed. */
+  private widthDots: number | null | undefined;
+  /** Cached effective label length (^LL) in dots; null means computed but missing/malformed. */
+  private heightDots: number | null | undefined;
   /** Public so advanced users (and your own components) can read cfg if needed */
   public readonly cfg: { dpi: DPI; units: Units };
 
@@ -417,6 +421,22 @@ export class Label {
   // Output
   // ---------------------------------------------------------------------------
 
+  /** Effective label width from ^PW in the current unit context, if available. */
+  get width(): number | undefined {
+    if (this.widthDots === undefined) {
+      this.widthDots = readDimensionDots(this.tokens, 'PW') ?? null;
+    }
+    return this.widthDots === null ? undefined : fromDots(this.widthDots, this.cfg.dpi, this.cfg.units);
+  }
+
+  /** Effective label height from ^LL in the current unit context, if available. */
+  get height(): number | undefined {
+    if (this.heightDots === undefined) {
+      this.heightDots = readDimensionDots(this.tokens, 'LL') ?? null;
+    }
+    return this.heightDots === null ? undefined : fromDots(this.heightDots, this.cfg.dpi, this.cfg.units);
+  }
+
   /** Emit the final ZPL string. Untouched tokens re-emit byte-identical. */
   toZPL(): string {
     return emit(this.tokens);
@@ -436,17 +456,10 @@ export class Label {
 
   /** Read the effective print width (^PW) in dots from the token stream. */
   private getPrintWidthDots(): number | undefined {
-    for (let i = this.tokens.length - 1; i >= 0; i--) {
-      const tok = this.tokens[i];
-      if (tok.k !== 'Cmd' || tok.mark !== '^' || tok.name !== 'PW') continue;
-
-      const raw = tok.params.split(',')[0]?.trim();
-      if (!raw) return undefined;
-      const parsed = Number.parseInt(raw, 10);
-      if (!Number.isFinite(parsed)) return undefined;
-      return parsed;
+    if (this.widthDots === undefined) {
+      this.widthDots = readDimensionDots(this.tokens, 'PW') ?? null;
     }
-    return undefined;
+    return this.widthDots === null ? undefined : this.widthDots;
   }
 
   /** Escape carets inside ^FD payloads per ZPL rules */
@@ -602,6 +615,19 @@ export class Label {
 }
 
 /* local helpers */
+const readDimensionDots = (tokens: Token[], name: 'PW' | 'LL'): number | undefined => {
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    const tok = tokens[i];
+    if (tok.k !== 'Cmd' || tok.mark !== '^' || tok.name !== name) continue;
+
+    const raw = tok.params.split(',')[0]?.trim();
+    if (!raw) return undefined;
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed)) return undefined;
+    return parsed;
+  }
+  return undefined;
+};
 const clampRange = (n: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.round(n)));
 const clamp1 = (n: number) => Math.max(1, Math.round(n));

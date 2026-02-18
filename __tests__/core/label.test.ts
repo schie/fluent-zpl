@@ -25,6 +25,8 @@ describe('Label Factory Methods', () => {
     expect(zpl).toContain('^XZ');
     expect(label.cfg.dpi).toBe(203);
     expect(label.cfg.units).toBe(Units.Dot);
+    expect(label.width).toBe(400);
+    expect(label.height).toBe(600);
   });
 
   test('Label.create() should handle custom DPI and units', () => {
@@ -79,6 +81,44 @@ describe('Label Factory Methods', () => {
 
     expect(label.cfg.dpi).toBe(300);
     expect(label.cfg.units).toBe(Units.Millimeter);
+  });
+
+  test('Label width and height should be converted to configured units', () => {
+    const label = Label.create({
+      w: 100,
+      h: 150,
+      dpi: 300,
+      units: Units.Millimeter,
+    });
+
+    expect(label.width).toBeCloseTo(99.991333, 5);
+    expect(label.height).toBeCloseTo(150.029333, 5);
+  });
+
+  test('Label width and height should read the last effective ^PW/^LL', () => {
+    const label = Label.parse('^XA^PW200^LL300^PW400^LL500^XZ');
+
+    expect(label.width).toBe(400);
+    expect(label.height).toBe(500);
+  });
+
+  test('Label width and height should return cached values on repeated access', () => {
+    const label = Label.parse('^XA^PW321^LL654^XZ');
+
+    expect(label.width).toBe(321);
+    expect(label.height).toBe(654);
+    expect(label.width).toBe(321);
+    expect(label.height).toBe(654);
+  });
+
+  test('Label width and height should be undefined when commands are missing or malformed', () => {
+    const noDims = Label.parse('^XA^FO10,10^FDX^FS^XZ');
+    expect(noDims.width).toBeUndefined();
+    expect(noDims.height).toBeUndefined();
+
+    const malformed = Label.parse('^XA^PWabc^LL^XZ');
+    expect(malformed.width).toBeUndefined();
+    expect(malformed.height).toBeUndefined();
   });
 
   test('Label should be immutable', () => {
