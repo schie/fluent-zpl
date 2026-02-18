@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/schie/fluent-zpl/compare/v0.12.0...v0.13.0) (2026-02-18)
+
+
+### Features
+
+* **label:** adding `.width` and `.height` ([fd40581](https://github.com/schie/fluent-zpl/commit/fd4058184ac5487e1a914e25b4a4c85217ed3466))
+
 ## [0.12.0](https://github.com/schie/fluent-zpl/compare/v0.11.2...v0.12.0) (2026-02-16)
 
 
