@@ -37,7 +37,7 @@ jobs:
 
       - name: Upload build artifacts
         if: matrix.node-version == '24.x' # Only upload from .nvmrc version
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: build-output
           path: dist/
