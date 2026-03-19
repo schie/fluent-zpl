@@ -30,6 +30,7 @@ import {
   FontFamily,
   Justify,
   Orientation,
+  Position,
   RFIDBank,
   Units,
 } from '../_types.js';
@@ -100,6 +101,19 @@ export class Label {
   // ---------------------------------------------------------------------------
   // Core building blocks (primitive fluent methods)
   // ---------------------------------------------------------------------------
+
+  /** Set label home (^LH) in the current format before any fields that depend on it. */
+  labelHome(labelHome: Position): Label {
+    const { dpi, units } = this.cfg;
+    const x = toDots(labelHome.x, dpi, units);
+    const y = toDots(labelHome.y, dpi, units);
+    return this._upsertHeaderCommand('LH', `${x},${y}`, ['PM', 'PO']);
+  }
+
+  /** Convenience for ^LH0,0. */
+  labelHomeOrigin(): Label {
+    return this.labelHome({ x: 0, y: 0 });
+  }
 
   /**
    * Add a text field.
@@ -451,6 +465,37 @@ export class Label {
     const idx = findLastXZ(this.tokens);
     const next = [...this.tokens];
     next.splice(idx, 0, ...newTokens);
+    return new Label(next, this.cfg);
+  }
+
+  /** Replace or insert a format-level command near the start of the label header. */
+  private _upsertHeaderCommand(name: string, params: string, afterNames: readonly string[]): Label {
+    const next = this.tokens.filter(
+      (token) => !(token.k === 'Cmd' && token.mark === '^' && token.name === name),
+    );
+
+    let insertIndex = 0;
+    const xaIndex = next.findIndex(
+      (token) => token.k === 'Cmd' && token.mark === '^' && token.name === 'XA',
+    );
+
+    if (xaIndex !== -1) {
+      insertIndex = xaIndex + 1;
+      while (insertIndex < next.length) {
+        const token = next[insertIndex];
+        if (
+          token.k === 'Cmd' &&
+          token.mark === '^' &&
+          afterNames.includes(token.name)
+        ) {
+          insertIndex += 1;
+          continue;
+        }
+        break;
+      }
+    }
+
+    next.splice(insertIndex, 0, { k: 'Cmd', mark: '^', name, params });
     return new Label(next, this.cfg);
   }
 

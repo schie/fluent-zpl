@@ -6,7 +6,6 @@ import type {
   MediaTracking,
   Mirror,
   Orientation,
-  Position,
   PrinterConfigOpts,
   PrinterMode,
   Token,
@@ -55,12 +54,6 @@ export const buildPrinterConfigTokens = (
     commands.push(`~TA${clamp(dots, -120, 120)}`);
   }
 
-  if (opts.labelHome) {
-    const x = toDots(opts.labelHome.x, cfg.dpi, cfg.units);
-    const y = toDots(opts.labelHome.y, cfg.dpi, cfg.units);
-    commands.push(`^LH${x},${y}`);
-  }
-
   if (opts.additionalCommands?.length) {
     for (const cmd of opts.additionalCommands) {
       if (cmd && cmd.trim().length) commands.push(cmd.trim());
@@ -94,7 +87,7 @@ export interface PrinterConfigBuilderOptions {
  * Fluent, immutable builder for printer configuration commands.
  *
  * @remarks
- * Use this when you want a readable, chainable way to assemble ^MM/^MN/^PW/^PR/^MD/^LH/^JU
+ * Use this when you want a readable, chainable way to assemble ^MM/^MN/^PW/^PR/^MD/^JU
  * without mutating state. You can pass dots directly or preconvert measurements with `inch()`
  * / `mm()`. The result can be consumed by `ZPLProgram.printerConfig(...)` via `.build()`, or
  * serialized on its own with `.toZPL()`.
@@ -158,16 +151,6 @@ export class PrinterConfig {
   /** Set tear-off adjustment (~TA). Provide dots or preconverted values; rounded and clamped between -120 and 120. */
   tearOff(tearOff: number): PrinterConfig {
     return this.with({ tearOff });
-  }
-
-  /** Set label home (^LH). Provide dots or preconverted values. */
-  labelHome(labelHome: Position): PrinterConfig {
-    return this.with({ labelHome });
-  }
-
-  /** Convenience for ^LH0,0. */
-  labelHomeOrigin(): PrinterConfig {
-    return this.labelHome({ x: 0, y: 0 });
   }
 
   /** Merge and dedupe additional passthrough commands. */

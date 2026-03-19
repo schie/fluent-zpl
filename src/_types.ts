@@ -223,8 +223,6 @@ export interface PrinterConfigOpts {
   tearOff?: number;
   /** Printer configuration save/load action (^JU) */
   configuration?: PrinterConfiguration;
-  /** Label home offset (^LH) */
-  labelHome?: Position;
   /** Pass-through commands appended after the typed options. */
   additionalCommands?: string[];
 }
