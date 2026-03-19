@@ -11,9 +11,6 @@
 
 A modern, type-safe TypeScript library for generating **ZPL (Zebra Programming Language)** commands using a fluent, immutable API. Perfect for creating shipping labels, product tags, inventory stickers, and any other Zebra printer output.
 
-> **⚠️ Early Development Notice**  
-> This library is under active early development. Until v1.0.0 is released, consider all releases potentially breaking. The API may change significantly between versions as we refine the design based on user feedback and real-world usage patterns.
-
 ## ✨ Features
 
 - 🔗 **Fluent API** - Chain methods for intuitive label building
@@ -99,12 +96,12 @@ const program = ZPLProgram.create()
     printSpeed: 4,
     darkness: 10,
     tearOff: -12,
-    labelHome: { x: 0, y: 0 },
     configuration: PrinterConfiguration.Save,
   })
   .label(
     (label) =>
       label
+        .labelHome({ x: 0, y: 0 })
         .text({
           at: { x: 40, y: 60 },
           text: 'Config + Label + RFID',
@@ -144,17 +141,16 @@ const config = PrinterConfig.create()
   .printSpeed(4)
   .darkness(10)
   .tearOff(25)
-  .labelHome({ x: 0, y: 0 })
   .save(); // ^JUS
 
 const zpl = ZPLProgram.create().printerConfig(config.build()).toZPL();
-// => ^XA^MMT^MNY^PW900^PR4,6,2^MD10~TA25^LH0,0^JUS^XZ
+// => ^XA^MMT^MNY^PW900^PR4,6,2^MD10~TA25^JUS^XZ
 // Or send config.toZPL() directly if you only need the setup block (it wraps ^XA/^XZ for you)
 ```
 
 When you set any ^PR speed, missing components default to print 2, slew 6, and backfeed 2 per ZPL.
 
-`ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, `^LH`, `~TA`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution—every downstream helper (including `.label(...)`) inherits those settings. A single program can now cover:
+`ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, label `^LH`, `~TA`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution. `printerConfig(...)` is for printer/job commands; use `Label.create({ origin: ... })` or `.labelHome(...)` for label-local `^LH`. A single program can now cover:
 
 - Label formats and layout (`.label(...)`)
 - Printer/media configuration (`.printerConfig(...)`)
@@ -249,6 +245,7 @@ label
 })
 // => ^FH_^FDLine1_0D_0ALine2 _3E _5E caret^FS
 ```
+
 Note: some renderers (e.g., zpl-renderer-js) may not process ^FH escapes even though printers do.
 
 Set `hexIndicator` to emit `^FH` for fields that need inline hex escapes; it works for both text and barcodes.
@@ -758,6 +755,8 @@ const zpl = label.toZPL();
   - `.rfid(opts)` - Add RFID field with EPC encoding
   - `.rfidRead(opts)` - Add RFID read command
   - `.epc(opts)` - Add EPC encoding (convenience method)
+  - `.labelHome(position)` - Set label home (^LH)
+  - `.labelHomeOrigin()` - Set label home to the origin (^LH0,0)
   - `.comment(text)` - Add ZPL comment (^FX)
   - `.withMetadata(meta)` - Add structured metadata as comments
   - `.setCharacterSet(opts)` - Set the active character set (^CI)
@@ -769,7 +768,7 @@ const zpl = label.toZPL();
   - `ZPLProgram.create(opts)` - Start a new program (sets DPI/units context)
   - `.raw(zpl)` - Append arbitrary commands (diagnostics, downloads, etc.)
   - `.comment(text)` - Insert ^FX comments between sections
-  - `.printerConfig(opts)` - Emit typed ^MM/^MN/^PW/^PR/^MD/~TA/^JU/^LH blocks
+  - `.printerConfig(opts)` - Emit typed ^MM/^MN/^PW/^PR/^MD/~TA/^JU blocks
   - `.label(labelOrFactory, options?)` - Append a fluent `Label` (^XA…^XZ)
   - `.rfid(opts)` / `.rfidRead(opts)` - Emit RFID commands outside labels
   - `.toZPL()` - Serialize the final job payload
