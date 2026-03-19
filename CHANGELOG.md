@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/schie/fluent-zpl/compare/v0.13.0...v1.0.0) (2026-03-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* moves labelHome and labelHomeOrigin from PrinterConfig to Label
+
+### Features
+
+* moving labelHome* to label ([37a1537](https://github.com/schie/fluent-zpl/commit/37a1537b523140238d7f06abc30ebe2847eacbda))
+
 ## [0.13.0](https://github.com/schie/fluent-zpl/compare/v0.12.0...v0.13.0) (2026-02-18)
 
 
