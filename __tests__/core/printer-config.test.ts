@@ -21,11 +21,10 @@ describe('PrinterConfig builder', () => {
       .printSpeed(4)
       .darkness(10)
       .tearOff(25)
-      .labelHome({ x: 0, y: 0 })
       .save()
       .toZPL();
 
-    expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4,6,2^MD10~TA25^LH0,0^JUS^XZ');
+    expect(zpl).toBe('^XA^MMT^MNY^PW801^PR4,6,2^MD10~TA25^JUS^XZ');
   });
 
   test('supports mirror (^PM) and orientation (^PO)', () => {
@@ -85,13 +84,6 @@ describe('PrinterConfig builder', () => {
     expect(zpl).toBe('^XA^PR2,7,2^XZ');
   });
 
-  test('labelHomeOrigin sets ^LH0,0 and preserves immutability', () => {
-    const base = PrinterConfig.create();
-    const withOrigin = base.labelHomeOrigin();
-    expect(base.toZPL()).toBe('');
-    expect(withOrigin.toZPL()).toBe('^XA^LH0,0^XZ');
-  });
-
   test('additionalCommands merges and dedupes across calls', () => {
     const config = PrinterConfig.create()
       .additionalCommands([' ^XA ', ' ^XZ '])
@@ -126,34 +118,6 @@ describe('PrinterConfig builder', () => {
 
     expect(base.toZPL()).toBe('^XA^PR5,6,2^XZ');
     expect(tweaked.toZPL()).toBe('^XA^PR5,6,2^MD15^XZ');
-  });
-  test('labelHomeOrigin sets label home to origin (0,0)', () => {
-    const zpl = PrinterConfig.create().labelHomeOrigin().toZPL();
-
-    expect(zpl).toBe('^XA^LH0,0^XZ');
-  });
-
-  test('labelHomeOrigin overwrites existing labelHome position', () => {
-    const zpl = PrinterConfig.create().labelHome({ x: 100, y: 200 }).labelHomeOrigin().toZPL();
-
-    expect(zpl).toBe('^XA^LH0,0^XZ');
-  });
-
-  test('labelHomeOrigin works with unit conversion', () => {
-    const zpl = PrinterConfig.create({ units: Units.Inch, dpi: 300 })
-      .labelHome({ x: inch(1, 300), y: inch(0.5, 300) })
-      .labelHomeOrigin()
-      .toZPL();
-
-    expect(zpl).toBe('^XA^LH0,0^XZ');
-  });
-
-  test('labelHomeOrigin preserves immutability', () => {
-    const base = PrinterConfig.create().labelHome({ x: 50, y: 75 });
-    const origin = base.labelHomeOrigin();
-
-    expect(base.toZPL()).toBe('^XA^LH50,75^XZ');
-    expect(origin.toZPL()).toBe('^XA^LH0,0^XZ');
   });
 
   test('supports tear-off adjustment with unit conversion and clamping', () => {

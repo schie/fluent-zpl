@@ -18,11 +18,29 @@ describe('ZPLProgram', () => {
         printWidth: 801,
         printSpeed: 4,
         darkness: 10,
-        labelHome: { x: 0, y: 0 },
         configuration: PrinterConfiguration.Save,
       });
 
-    expect(program.toZPL()).toBe('^XA^MMT^MNY^PW801^PR4,6,2^MD10^LH0,0^JUS^XZ');
+    expect(program.toZPL()).toBe('^XA^MMT^MNY^PW801^PR4,6,2^MD10^JUS^XZ');
+  });
+
+  test('label-local ^LH stays in the label format', () => {
+    const zpl = ZPLProgram.create()
+      .printerConfig({
+        mode: PrinterMode.TearOff,
+        configuration: PrinterConfiguration.Save,
+      })
+      .label(
+        (label) =>
+          label.labelHome({ x: 10, y: 20 }).text({
+            at: { x: 40, y: 60 },
+            text: 'Program Label',
+          }),
+        { w: 400, h: 600 },
+      )
+      .toZPL();
+
+    expect(zpl).toBe('^XA^MMT^JUS^XZ^XA^LH10,20^PW400^LL600^FO40,60^AAN,28,28^FDProgram Label^FS^XZ');
   });
 
   test('label() factory composes label formats', () => {

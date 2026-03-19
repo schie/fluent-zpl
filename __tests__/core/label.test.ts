@@ -57,6 +57,58 @@ describe('Label Factory Methods', () => {
     expect(zpl).toContain('^LH10,20');
   });
 
+  test('labelHome() should insert ^LH in the label header and preserve immutability', () => {
+    const base = Label.create({ w: 400, h: 600 });
+    const updated = base.labelHome({ x: 10, y: 20 });
+
+    expect(base.toZPL()).toBe('^XA^PW400^LL600^XZ');
+    expect(updated.toZPL()).toBe('^XA^LH10,20^PW400^LL600^XZ');
+  });
+
+  test('labelHomeOrigin() should set ^LH0,0', () => {
+    const label = Label.create({ w: 400, h: 600 }).labelHomeOrigin();
+
+    expect(label.toZPL()).toBe('^XA^LH0,0^PW400^LL600^XZ');
+  });
+
+  test('labelHome() should replace an existing label origin', () => {
+    const label = Label.create({ w: 400, h: 600, origin: { x: 5, y: 6 } }).labelHome({
+      x: 10,
+      y: 20,
+    });
+
+    expect(label.toZPL()).toBe('^XA^LH10,20^PW400^LL600^XZ');
+  });
+
+  test('labelHome() should be inserted after mirror and orientation commands', () => {
+    const label = Label.create({
+      w: 400,
+      h: 600,
+      mirror: Mirror.On,
+      orientation: Orientation.Rotated90,
+    }).labelHome({ x: 10, y: 20 });
+
+    expect(label.toZPL()).toBe('^XA^PMY^POR^LH10,20^PW400^LL600^XZ');
+  });
+
+  test('labelHome() should be emitted before fields on parsed labels', () => {
+    const label = Label.parse('^XA^FO50,100^A0N,28,28^FDOriginal Text^FS^XZ').labelHome({
+      x: 10,
+      y: 20,
+    });
+
+    expect(label.toZPL()).toBe('^XA^LH10,20^FO50,100^A0N,28,28^FDOriginal Text^FS^XZ');
+  });
+
+  test('labelHome() should prepend ^LH when parsing a fragment without ^XA', () => {
+    const label = Label.parse('^FO50,100^A0N,28,28^FDOriginal Text^FS').labelHome({
+      x: 10,
+      y: 20,
+    });
+
+    expect(label.toZPL()).toBe('^LH10,20^FO50,100^A0N,28,28^FDOriginal Text^FS');
+  });
+
   test('Label.create() should mirror label content when requested', () => {
     const label = Label.create({
       w: 400,
