@@ -14,7 +14,7 @@ This repository houses a TypeScript library for generating Zebra Programming Lan
 
 **Testing / coverage**
 
-- Run `pnpm test -- --watchman=false`
+- Run `pnpm test --watchman=false`
 - Node 20+, ESM modules (`ts-jest` with `NODE_OPTIONS='--experimental-vm-modules'`)
 - Coverage must remain at 100% across `src/**`
 

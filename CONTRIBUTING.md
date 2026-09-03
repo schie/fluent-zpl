@@ -16,7 +16,7 @@ Thanks for helping improve fluent-zpl! Please follow the guidelines below so cha
 - Install dependencies: `pnpm install`
 - Recommended workflow:
   - Lint: `pnpm run lint`
-  - Tests (coverage must remain 100%): `pnpm test -- --watchman=false` or `pnpm run test:coverage`
+  - Tests (coverage must remain 100%): `pnpm test --watchman=false` or `pnpm run test:coverage`
   - Build (before publishing or validating output types): `pnpm run build`
   - Docs (when documentation changes are needed): `pnpm run docs`
 
@@ -32,7 +32,7 @@ Thanks for helping improve fluent-zpl! Please follow the guidelines below so cha
 - Open an issue or reference an existing one; link it in your PR description.
 - Keep PRs small and focused; mention affected modules in the title.
 - Include tests and documentation updates with your change. PRs with failing lint/tests or reduced coverage will not be merged.
-- Ensure `pnpm run lint` and `pnpm test -- --watchman=false` pass locally before requesting review.
+- Ensure `pnpm run lint` and `pnpm test --watchman=false` pass locally before requesting review.
 
 ## Commit style
 

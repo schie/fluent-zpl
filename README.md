@@ -150,7 +150,8 @@ const zpl = ZPLProgram.create().printerConfig(config.build()).toZPL();
 
 When you set any ^PR speed, missing components default to print 2, slew 6, and backfeed 2 per ZPL.
 
-`ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, label `^LH`, `~TA`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution. `printerConfig(...)` is for printer/job commands; use `Label.create({ origin: ... })` or `.labelHome(...)` for label-local `^LH`. A single program can now cover:
+`ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, label `^LH`, `~TA`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution.
+`printerConfig(...)` is for printer/job commands; use `Label.create({ origin: ... })` or `.labelHome(...)` for label-local `^LH`. A single program can now cover:
 
 - Label formats and layout (`.label(...)`)
 - Printer/media configuration (`.printerConfig(...)`)
@@ -794,7 +795,7 @@ const zpl = label.toZPL();
 
 ## 🌐 Docs & Examples
 
-- **Live site**: https://schie.github.io/fluent-zpl/ (API docs) and https://schie.github.io/fluent-zpl/examples/ (interactive labels)
+- **Live site**: [API docs](https://schie.github.io/fluent-zpl/) and [interactive labels](https://schie.github.io/fluent-zpl/examples/)
 - **Cross-links**: Typedoc navigation includes an Examples link; the playground header links back to the docs
 - **Local build**: `pnpm install` once, then `pnpm run docs:pages` to emit Typedoc HTML plus the Vite app to `docs/examples/` for GitHub Pages
 - **New demos**: Shapes (`^GC`, `^GE`, `^GD`), UTF-8 (`^CI28`), and `^FH` hex-escape handling are available in the examples app
@@ -816,7 +817,7 @@ pnpm install
 pnpm test
 
 # Run tests with coverage
-pnpm test -- --coverage
+pnpm test --coverage
 
 # Build
 pnpm run build
