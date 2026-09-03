@@ -796,7 +796,7 @@ const zpl = label.toZPL();
 
 - **Live site**: https://schie.github.io/fluent-zpl/ (API docs) and https://schie.github.io/fluent-zpl/examples/ (interactive labels)
 - **Cross-links**: Typedoc navigation includes an Examples link; the playground header links back to the docs
-- **Local build**: `npm ci --prefix examples` once, then `npm run docs:pages` to emit Typedoc HTML plus the Vite app to `docs/examples/` for GitHub Pages
+- **Local build**: `pnpm install` once, then `pnpm run docs:pages` to emit Typedoc HTML plus the Vite app to `docs/examples/` for GitHub Pages
 - **New demos**: Shapes (`^GC`, `^GE`, `^GD`), UTF-8 (`^CI28`), and `^FH` hex-escape handling are available in the examples app
 
 ## 🤝 Contributing
@@ -810,19 +810,19 @@ Contributions are welcome! This project uses:
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Run tests
-npm test
+pnpm test
 
 # Run tests with coverage
-npm test -- --coverage
+pnpm test -- --coverage
 
 # Build
-npm run build
+pnpm run build
 
 # Lint
-npm run lint
+pnpm run lint
 ```
 
 ## 📄 License
