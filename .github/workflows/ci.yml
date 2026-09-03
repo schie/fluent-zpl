@@ -23,17 +23,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build package
-        run: npm run build
+        run: pnpm run build
 
       - name: Upload build artifacts
         if: matrix.node-version == '24.x' # Only upload from .nvmrc version
@@ -56,17 +59,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests with coverage
-        run: npm test -- --coverage
+        run: pnpm test -- --coverage
 
       - name: Upload coverage to Codecov
         if: matrix.node-version == '24.x' # Only upload from .nvmrc version
