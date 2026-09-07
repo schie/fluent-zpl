@@ -78,8 +78,8 @@ importers:
         specifier: ^4.1.17
         version: 4.3.3
       zpl-renderer-js:
-        specifier: ^2.0.2
-        version: 2.2.1
+        specifier: ^4.0.0
+        version: 4.0.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.36.0
@@ -3842,8 +3842,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zpl-renderer-js@2.2.1:
-    resolution: {integrity: sha512-EhqFIbFD8VVw0QlPnIfXp4H7JbzfJStqeX23LK8N2J0IVl6UGCyHf4lPmzDmpA9cWshpOU6qSdqzQnrontIpSA==}
+  zpl-renderer-js@4.0.0:
+    resolution: {integrity: sha512-tcpyTVldabjbPj5Nmru1mieh/Y0OEs+VsqTlzMZLgSeB+wnldxKeLha7VRJmeGZJw3rlxu+wTberFKiuwhfcOA==}
 
 snapshots:
 
@@ -7968,4 +7968,4 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zpl-renderer-js@2.2.1: {}
+  zpl-renderer-js@4.0.0: {}
