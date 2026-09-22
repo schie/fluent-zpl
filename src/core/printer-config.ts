@@ -77,7 +77,15 @@ export const wrapPrinterConfigTokensInFormat = (tokens: Token[]): Token[] => {
   return tokenizeZPL(`^XA${emit(tokens)}^XZ`);
 };
 
-/** Optional context for converting measurements when building printer config */
+/**
+ * Optional context for converting measurements when building printer config.
+ *
+ * @remarks
+ * `dpi`/`units` only matter for options measured in distance — `printWidth` (`^PW`) and
+ * `tearOff` (`~TA`) — which are converted to dots using this context. Non-measurement options
+ * such as `printSpeed`/`slewSpeed`/`backfeedSpeed` (`^PR`) and `darkness` (`^MD`) are unaffected
+ * by `dpi`/`units`, so omit them entirely if you're only configuring device-level settings.
+ */
 export interface PrinterConfigBuilderOptions {
   dpi?: DPI;
   units?: Units;
@@ -98,7 +106,15 @@ export class PrinterConfig {
     private readonly opts: PrinterConfigOpts,
   ) {}
 
-  /** Start a new printer configuration builder (defaults to dots @ 203 dpi). */
+  /**
+   * Start a new printer configuration builder (defaults to dots @ 203 dpi).
+   *
+   * @remarks
+   * `dpi`/`units` are only used to convert `printWidth`/`tearOff` from inches or millimeters
+   * into dots. If you're only setting device-level, non-measurement options like `printSpeed`,
+   * `slewSpeed`, `backfeedSpeed`, or `darkness` (e.g. `^PR`/`^MD`), you can omit them entirely:
+   * `PrinterConfig.create().printSpeed(8).toZPL()`.
+   */
   static create({ dpi, units }: PrinterConfigBuilderOptions = {}): PrinterConfig {
     return new PrinterConfig({ dpi: (dpi ?? 203) as DPI, units: units ?? Units.Dot }, {});
   }
@@ -123,32 +139,47 @@ export class PrinterConfig {
     return this.with({ orientation });
   }
 
-  /** Set print width (^PW). Provide dots or preconverted values. */
+  /** Set print width (^PW). Converted to dots using the builder's `dpi`/`units` context. */
   printWidth(printWidth: number): PrinterConfig {
     return this.with({ printWidth });
   }
 
-  /** Set print speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
+  /**
+   * Set print speed component (^PR). Rounded to an integer and clamped between 1 and 14
+   * (default 2). Not a measurement — independent of `dpi`/`units`.
+   */
   printSpeed(printSpeed: number): PrinterConfig {
     return this.with({ printSpeed });
   }
 
-  /** Set slew speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 6). */
+  /**
+   * Set slew speed component (^PR). Rounded to an integer and clamped between 1 and 14
+   * (default 6). Not a measurement — independent of `dpi`/`units`.
+   */
   slewSpeed(slewSpeed: number): PrinterConfig {
     return this.with({ slewSpeed });
   }
 
-  /** Set backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
+  /**
+   * Set backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14
+   * (default 2). Not a measurement — independent of `dpi`/`units`.
+   */
   backfeedSpeed(backfeedSpeed: number): PrinterConfig {
     return this.with({ backfeedSpeed });
   }
 
-  /** Set darkness (^MD). Rounded to an integer and clamped between -30 and 30. */
+  /**
+   * Set darkness (^MD). Rounded to an integer and clamped between -30 and 30. Not a
+   * measurement — independent of `dpi`/`units`.
+   */
   darkness(darkness: number): PrinterConfig {
     return this.with({ darkness });
   }
 
-  /** Set tear-off adjustment (~TA). Provide dots or preconverted values; rounded and clamped between -120 and 120. */
+  /**
+   * Set tear-off adjustment (~TA). Provide dots or preconverted values; rounded and clamped
+   * between -120 and 120. Converted to dots using the builder's `dpi`/`units` context.
+   */
   tearOff(tearOff: number): PrinterConfig {
     return this.with({ tearOff });
   }

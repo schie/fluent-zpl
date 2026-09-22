@@ -199,6 +199,12 @@ export enum PrinterConfiguration {
 
 /**
  * Options for building printer configuration blocks outside of label formats.
+ *
+ * @remarks
+ * `printWidth` and `tearOff` are measurements: they're converted to dots using the current
+ * `dpi`/`units` context. Every other option here — `printSpeed`/`slewSpeed`/`backfeedSpeed`
+ * (^PR) and `darkness` (^MD) — is a device-level setting with no dot conversion, so `dpi`/`units`
+ * don't apply to them.
  */
 export interface PrinterConfigOpts {
   /** Print mode selection (^MM) */
@@ -207,17 +213,29 @@ export interface PrinterConfigOpts {
   mediaTracking?: MediaTracking;
   /** Print width (^PW). Uses the current unit context. */
   printWidth?: number;
-  /** Print speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
+  /**
+   * Print speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2).
+   * Not a measurement — independent of `dpi`/`units`.
+   */
   printSpeed?: number;
-  /** Slew speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 6). */
+  /**
+   * Slew speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 6).
+   * Not a measurement — independent of `dpi`/`units`.
+   */
   slewSpeed?: number;
-  /** Backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2). */
+  /**
+   * Backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2).
+   * Not a measurement — independent of `dpi`/`units`.
+   */
   backfeedSpeed?: number;
   /** Mirror label content across the vertical axis (^PM). */
   mirror?: Mirror;
   /** Inverted/normal print orientation (^PO). Defaults to N on the printer. */
   orientation?: Orientation;
-  /** Darkness setting (^MD). Rounded to an integer and clamped between -30 and 30. */
+  /**
+   * Darkness setting (^MD). Rounded to an integer and clamped between -30 and 30. Not a
+   * measurement — independent of `dpi`/`units`.
+   */
   darkness?: number;
   /** Tear-off adjustment (~TA). Uses the current unit context, rounded and clamped between -120 and 120. */
   tearOff?: number;
