@@ -131,6 +131,11 @@ Use `tearOff` when you need to fine-tune the liner break point: pass dots, milli
 
 Or use the fluent printer config builder when you want to compose setup steps:
 
+> `PrinterConfig.create({ dpi, units })` only needs `dpi`/`units` for measurement-based options
+> (`printWidth`, `tearOff`). Device-level settings like `printSpeed`/`slewSpeed`/`backfeedSpeed`
+> (`^PR`) and `darkness` (`^MD`) don't depend on DPI, so `PrinterConfig.create().printSpeed(8).toZPL()`
+> works fine without any DPI/units context.
+
 ```typescript
 const config = PrinterConfig.create()
   .mode(PrinterMode.TearOff)
