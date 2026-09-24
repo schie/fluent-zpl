@@ -46,7 +46,7 @@ src/
 3. **ZPL correctness first** – Always emit complete parameters, escape `^` inside `^FD`, maintain ^XA/^XZ framing.
 4. **Shared token pipeline** – Parse → manipulate → emit without lossy transforms.
 5. **No silent transforms** – Preserve whitespace/binary buffers; avoid reformatting parsed payloads.
-6. **Printer config invariants** – Clamp ^PR speeds 0–30, ^MD -30–30, ~TA ±120; wrap standalone config blocks with ^XA/^XZ.
+6. **Printer config invariants** – Clamp ^PR speeds 1–14, ^MD -30–30, ~TA ±120; wrap standalone config blocks with ^XA/^XZ.
 
 ## Core APIs
 
@@ -72,7 +72,7 @@ src/
 ### PrinterConfig (`src/core/printer-config.ts`)
 
 - `PrinterConfig.create({ dpi?, units? })` → immutable builder for ^MM/^MN/^PW/^PR/^MD/~TA/^LH/^JU
-- Speeds (^PR) clamp to 0–30, darkness (^MD) to -30–30, tear-off (~TA) to ±120 with unit conversion via `toDots`
+- Speeds (^PR) clamp to 1–14 (setting any speed emits all three, unset ones as 2/6/2), darkness (^MD) to -30–30, tear-off (~TA) to ±120 with unit conversion via `toDots`
 - `labelHome`/`labelHomeOrigin` helpers, plus `additionalCommands`/`raw` with dedupe
 - `configuration`/`save`/`reloadSaved`/`reloadFactory`/`reloadFactoryNetwork` map to ^JU codes
 - `.build()` returns options for `ZPLProgram.printerConfig`; `.toZPL()` wraps the block in ^XA/^XZ if needed
@@ -114,7 +114,7 @@ src/
 - TypeScript strict mode everywhere; no `any`
 - Keep APIs immutable and side-effect free
 - Update `_types.ts` for public options/enums
-- Preserve printer config clamping/wrapping invariants (PR 0–30, MD -30–30, TA ±120, wrap config blocks in ^XA/^XZ)
+- Preserve printer config clamping/wrapping invariants (PR 1–14, MD -30–30, TA ±120, wrap config blocks in ^XA/^XZ)
 - Document new functionality (README + docs) and refresh Copilot/agent notes when behavior shifts
 
 ## ZPL Tips

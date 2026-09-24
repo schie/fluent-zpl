@@ -153,7 +153,12 @@ const zpl = ZPLProgram.create().printerConfig(config.build()).toZPL();
 // Or send config.toZPL() directly if you only need the setup block (it wraps ^XA/^XZ for you)
 ```
 
-When you set any ^PR speed, missing components default to print 2, slew 6, and backfeed 2 per ZPL.
+> **`^PR` always emits all three speeds.** Setting any one of `printSpeed`/`slewSpeed`/`backfeedSpeed`
+> writes a full `^PR{print},{slew},{backfeed}` command, filling unset components with print 2,
+> slew 6, and backfeed 2. For example, `PrinterConfig.create().printSpeed(8).toZPL()` emits
+> `^XA^PR8,6,2^XZ`, which resets slew and backfeed on the printer even if they were configured
+> differently. If you only want to change one speed, set all three explicitly to the values your
+> printer should keep. Speeds are rounded and clamped to 1–14.
 
 `ZPLProgram` keeps track of the same DPI/unit context as your labels, so printer/media measurements (`^PW`, label `^LH`, `~TA`, etc.) stay consistent. Pass `{ dpi, units }` to `ZPLProgram.create` when you need to match a different printer resolution.
 `printerConfig(...)` is for printer/job commands; use `Label.create({ origin: ... })` or `.labelHome(...)` for label-local `^LH`. A single program can now cover:

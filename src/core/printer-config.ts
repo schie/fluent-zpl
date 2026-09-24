@@ -145,24 +145,30 @@ export class PrinterConfig {
   }
 
   /**
-   * Set print speed component (^PR). Rounded to an integer and clamped between 1 and 14
-   * (default 2). Not a measurement — independent of `dpi`/`units`.
+   * Set print speed component (^PR). Rounded to an integer and clamped between 1 and 14.
+   * Setting any ^PR speed emits all three components, filling unset ones with print 2, slew 6,
+   * and backfeed 2 (so this one is written as 2 when unset). Not a measurement — independent
+   * of `dpi`/`units`.
    */
   printSpeed(printSpeed: number): PrinterConfig {
     return this.with({ printSpeed });
   }
 
   /**
-   * Set slew speed component (^PR). Rounded to an integer and clamped between 1 and 14
-   * (default 6). Not a measurement — independent of `dpi`/`units`.
+   * Set slew speed component (^PR). Rounded to an integer and clamped between 1 and 14.
+   * Setting any ^PR speed emits all three components, filling unset ones with print 2, slew 6,
+   * and backfeed 2 (so this one is written as 6 when unset). Not a measurement — independent
+   * of `dpi`/`units`.
    */
   slewSpeed(slewSpeed: number): PrinterConfig {
     return this.with({ slewSpeed });
   }
 
   /**
-   * Set backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14
-   * (default 2). Not a measurement — independent of `dpi`/`units`.
+   * Set backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14.
+   * Setting any ^PR speed emits all three components, filling unset ones with print 2, slew 6,
+   * and backfeed 2 (so this one is written as 2 when unset). Not a measurement — independent
+   * of `dpi`/`units`.
    */
   backfeedSpeed(backfeedSpeed: number): PrinterConfig {
     return this.with({ backfeedSpeed });

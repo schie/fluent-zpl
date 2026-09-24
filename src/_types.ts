@@ -214,18 +214,21 @@ export interface PrinterConfigOpts {
   /** Print width (^PW). Uses the current unit context. */
   printWidth?: number;
   /**
-   * Print speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2).
-   * Not a measurement — independent of `dpi`/`units`.
+   * Print speed component (^PR). Rounded to an integer and clamped between 1 and 14.
+   * Setting any ^PR speed emits all three components; when unset, this one is written as 2,
+   * overriding the printer's current value. Not a measurement — independent of `dpi`/`units`.
    */
   printSpeed?: number;
   /**
-   * Slew speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 6).
-   * Not a measurement — independent of `dpi`/`units`.
+   * Slew speed component (^PR). Rounded to an integer and clamped between 1 and 14.
+   * Setting any ^PR speed emits all three components; when unset, this one is written as 6,
+   * overriding the printer's current value. Not a measurement — independent of `dpi`/`units`.
    */
   slewSpeed?: number;
   /**
-   * Backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14 (default 2).
-   * Not a measurement — independent of `dpi`/`units`.
+   * Backfeed speed component (^PR). Rounded to an integer and clamped between 1 and 14.
+   * Setting any ^PR speed emits all three components; when unset, this one is written as 2,
+   * overriding the printer's current value. Not a measurement — independent of `dpi`/`units`.
    */
   backfeedSpeed?: number;
   /** Mirror label content across the vertical axis (^PM). */
