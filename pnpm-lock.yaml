@@ -78,8 +78,8 @@ importers:
         specifier: ^4.1.17
         version: 4.3.3
       zpl-renderer-js:
-        specifier: ^2.0.2
-        version: 2.2.1
+        specifier: ^4.0.0
+        version: 4.0.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.36.0
@@ -3241,8 +3241,8 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react-is@19.2.8:
-    resolution: {integrity: sha512-s5un28nYxKJw5gvUHyW5PCC28CvBqLu9r3cWgzHT4Vo/5fqqkFcdRYsGcKf50WMPpjjFZS5d76fn3YCo2njKwQ==}
+  react-is@19.3.0:
+    resolution: {integrity: sha512-UpMYezM4v5/18F28aC66AEsjXIgE02kyEMH6yLdgLXu/UTfa1Ntwck/nNLrbqJsEXW7gPb0coNO9FQse9WTovA==}
 
   react@19.2.8:
     resolution: {integrity: sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==}
@@ -3842,8 +3842,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zpl-renderer-js@2.2.1:
-    resolution: {integrity: sha512-EhqFIbFD8VVw0QlPnIfXp4H7JbzfJStqeX23LK8N2J0IVl6UGCyHf4lPmzDmpA9cWshpOU6qSdqzQnrontIpSA==}
+  zpl-renderer-js@4.0.0:
+    resolution: {integrity: sha512-tcpyTVldabjbPj5Nmru1mieh/Y0OEs+VsqTlzMZLgSeB+wnldxKeLha7VRJmeGZJw3rlxu+wTberFKiuwhfcOA==}
 
 snapshots:
 
@@ -7253,7 +7253,7 @@ snapshots:
   pretty-format@30.5.1:
     dependencies:
       '@jest/react-is-18': react-is@18.3.1
-      '@jest/react-is-19': react-is@19.2.8
+      '@jest/react-is-19': react-is@19.3.0
       '@jest/schemas': 30.5.0
       ansi-styles: 5.2.0
 
@@ -7278,7 +7278,7 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react-is@19.2.8: {}
+  react-is@19.3.0: {}
 
   react@19.2.8: {}
 
@@ -7968,4 +7968,4 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zpl-renderer-js@2.2.1: {}
+  zpl-renderer-js@4.0.0: {}
